@@ -13,13 +13,16 @@ public class AdvanceAgent : Agent
     [SerializeField] private float _separationRadius = 2f;
     [SerializeField] private float _cohesionRadius = 2f;
     [SerializeField] private float _alignmentRadius = 2f;
+    [SerializeField] private float _hunterDetectionRadius = 8f;
 
     [SerializeField, Range(0f, 1f)] private float separationWeight = 1f;
     [SerializeField, Range(0f, 1f)] private float cohesionWeight = 1f;
     [SerializeField, Range(0f, 1f)] private float alignmentWeight = 1f;
 
+
     [Header("References")]
     [SerializeField] private Agent _target;
+    private Agent _hunter;
 
     public enum SteeringModes { Seek, Flee, Arrive, Pursuit, Evade, Flocking }
     public SteeringModes currentSteering;
@@ -29,6 +32,16 @@ public class AdvanceAgent : Agent
         allAgents.Add(this);
         Vector3 randomDirection = new Vector3(Random.Range(-1, 1), 0f, Random.Range(-1, 1));
         _velocity += randomDirection.normalized * _maxSpeed;
+    }
+
+    private void Start()
+    {
+        GameObject hunterObject = GameObject.FindGameObjectWithTag("Hunter");
+
+        if (hunterObject != null)
+        {
+            _hunter = hunterObject.GetComponent<Agent>();
+        }
     }
 
     private void Update()
@@ -44,6 +57,11 @@ public class AdvanceAgent : Agent
 
     private Vector3 SteeringVector()
     {
+        if (_hunter != null &&
+    InRange(_hunter.transform.position, _hunterDetectionRadius))
+        {
+            return Evade(_hunter);
+        }
         switch (currentSteering)
         {
             case SteeringModes.Seek:
@@ -212,5 +230,24 @@ public class AdvanceAgent : Agent
         var futurePosition = CalculateFuture(target);
 
         return Flee(futurePosition);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Separation
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _separationRadius);
+
+        // Cohesion
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, _cohesionRadius);
+
+        // Alignment
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, _alignmentRadius);
+
+        //Hunter
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _hunterDetectionRadius);
     }
 }
