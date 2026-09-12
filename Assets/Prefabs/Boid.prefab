@@ -135,6 +135,7 @@ MonoBehaviour:
   _cohesionRadius: 10
   _alignmentRadius: 6
   _hunterDetectionRadius: 8
+  _interestDetectionRadius: 9
   separationWeight: 0.6
   cohesionWeight: 0.4
   alignmentWeight: 0.8

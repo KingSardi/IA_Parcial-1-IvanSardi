@@ -1,19 +1,36 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class AdvanceAgent : Agent
 {
     [Header("Stats")]
+    [SerializeField] private float _maxHealth = 10f;
+    [SerializeField] private float _respawnDelay = 5f;
     [SerializeField] private float _maxSpeed = 3f;
     [SerializeField] private float _maxSteering = 3f;
     [SerializeField] private float _slowingDistance = 3f;
     [SerializeField] private float _minDistance = 0.1f;
+    private float _interactionTimer;
+    private float _currentHealth;
+    private bool _isDead;
+    public bool IsDead => _isDead;
 
     private static List<Agent> allAgents = new List<Agent>();
+    
+    [Header("FlockingRadius")]
     [SerializeField] private float _separationRadius = 2f;
     [SerializeField] private float _cohesionRadius = 2f;
     [SerializeField] private float _alignmentRadius = 2f;
+
+    [Header("HunterRadius")]
     [SerializeField] private float _hunterDetectionRadius = 8f;
+
+    [Header("InterestRadius")]
+    [SerializeField] private float _interestDetectionRadius = 9f;
+    [SerializeField] private float _interestInteractionRadius = 1.5f;
+    [SerializeField] private float _interactionInterval = 1f;
+    [SerializeField] private float _interactionDamage = 1f;
 
     [SerializeField, Range(0f, 1f)] private float separationWeight = 1f;
     [SerializeField, Range(0f, 1f)] private float cohesionWeight = 1f;
@@ -23,6 +40,8 @@ public class AdvanceAgent : Agent
     [Header("References")]
     [SerializeField] private Agent _target;
     private Agent _hunter;
+    private Renderer _renderer;
+    private InterestObject _interestTarget;
 
     public enum SteeringModes { Seek, Flee, Arrive, Pursuit, Evade, Flocking }
     public SteeringModes currentSteering;
@@ -30,6 +49,11 @@ public class AdvanceAgent : Agent
     private void Awake()
     {
         allAgents.Add(this);
+
+        _renderer = GetComponent<Renderer>();
+
+        _currentHealth = _maxHealth;
+
         Vector3 randomDirection = new Vector3(Random.Range(-1, 1), 0f, Random.Range(-1, 1));
         _velocity += randomDirection.normalized * _maxSpeed;
     }
@@ -46,6 +70,12 @@ public class AdvanceAgent : Agent
 
     private void Update()
     {
+        if (_isDead)
+            return;
+
+        DetectInterestObject();
+        InteractWithInterestObject();
+
         _velocity += SteeringVector();
         transform.position += _velocity * Time.deltaTime;
 
@@ -62,6 +92,22 @@ public class AdvanceAgent : Agent
         {
             return Evade(_hunter);
         }
+        
+        if (_interestTarget != null)
+        {
+            float distance = Vector3.Distance(
+                transform.position,
+                _interestTarget.transform.position
+            );
+
+            if (distance <= _interestInteractionRadius)
+            {
+                return CalculateSteering(Vector3.zero);
+            }
+
+            return Arrive(_interestTarget.transform.position);
+        }
+
         switch (currentSteering)
         {
             case SteeringModes.Seek:
@@ -232,6 +278,132 @@ public class AdvanceAgent : Agent
         return Flee(futurePosition);
     }
 
+    private void DetectInterestObject()
+    {
+        InterestObject[] interestObjects = FindObjectsByType<InterestObject>(
+            FindObjectsSortMode.None
+        );
+
+        InterestObject closest = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (InterestObject interest in interestObjects)
+        {
+            float distance = Vector3.Distance(
+                transform.position,
+                interest.transform.position
+            );
+
+            if (distance <= _interestDetectionRadius &&
+                distance < closestDistance)
+            {
+                closestDistance = distance;
+                closest = interest;
+            }
+        }
+
+        _interestTarget = closest;
+    }
+
+    private void InteractWithInterestObject()
+    {
+        if (_interestTarget == null)
+        {
+            _interactionTimer = 0f;
+            return;
+        }
+
+        float distance = Vector3.Distance(
+            transform.position,
+            _interestTarget.transform.position
+        );
+
+        if (distance > _interestInteractionRadius)
+        {
+            _interactionTimer = 0f;
+            return;
+        }
+
+        _interactionTimer += Time.deltaTime;
+
+        if (_interactionTimer >= _interactionInterval)
+        {
+            _interestTarget.TakeDamage(_interactionDamage);
+
+            _interactionTimer = 0f;
+        }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (_isDead)
+            return;
+
+        _currentHealth -= damage;
+
+        Debug.Log($"{name} recibió {damage} de daño. Vida: {_currentHealth}");
+
+        if (_currentHealth <= 0f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        _currentHealth = 0f;
+        _isDead = true;
+
+        _velocity = Vector3.zero;
+
+        Debug.Log($"{name} murió y quedó inactivo.");
+    }
+
+    public void Collect()
+    {
+        if (!_isDead)
+            return;
+
+        StartCoroutine(RespawnCoroutine());
+    }
+
+    private IEnumerator RespawnCoroutine()
+    {
+        _renderer.enabled = false;
+
+        yield return new WaitForSeconds(_respawnDelay);
+
+        Respawn();
+    }
+
+    private void Respawn()
+    {
+        transform.position = GetRandomPosition();
+
+        _currentHealth = _maxHealth;
+        _isDead = false;
+
+        Vector3 randomDirection = new Vector3(
+            Random.Range(-1f, 1f),
+            0f,
+            Random.Range(-1f, 1f)
+        );
+
+        _velocity = randomDirection.normalized * _maxSpeed;
+
+        _renderer.enabled = true;
+
+        Debug.Log($"{name} reapareció.");
+    }
+
+    private Vector3 GetRandomPosition()
+    {
+        float randomX = Random.Range(-28f, 28f);
+        float randomZ = Random.Range(-13f, 13f);
+
+        return new Vector3(randomX, transform.position.y, randomZ);
+    }
+
     private void OnDrawGizmosSelected()
     {
         // Separation
@@ -249,5 +421,9 @@ public class AdvanceAgent : Agent
         //Hunter
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, _hunterDetectionRadius);
+
+        //Interest
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, _interestDetectionRadius);
     }
 }
