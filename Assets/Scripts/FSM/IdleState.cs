@@ -26,7 +26,7 @@ public class IdleState : State
 
         if (_timeToChangePatrol <= _timer)
         {
-            StateMachine.ChangeState(PoliceStates.Patrol);
+            StateMachine.ChangeState(HunterStates.Patrol);
             Debug.Log("Me muevo");
         }
 
