@@ -127,6 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cce265aa7ab1c0242b1864a8e08797a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AdvanceAgent
+  _maxHealth: 10
+  _respawnDelay: 5
   _maxSpeed: 5
   _maxSteering: 3
   _slowingDistance: 3
@@ -134,8 +136,11 @@ MonoBehaviour:
   _separationRadius: 3
   _cohesionRadius: 10
   _alignmentRadius: 6
-  _hunterDetectionRadius: 8
-  _interestDetectionRadius: 9
+  _hunterDetectionRadius: 10
+  _interestDetectionRadius: 8
+  _interestInteractionRadius: 1.5
+  _interactionInterval: 1
+  _interactionDamage: 1
   separationWeight: 0.6
   cohesionWeight: 0.4
   alignmentWeight: 0.8

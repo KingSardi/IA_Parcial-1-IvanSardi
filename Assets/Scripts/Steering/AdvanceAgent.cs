@@ -15,6 +15,8 @@ public class AdvanceAgent : Agent
     private float _currentHealth;
     private bool _isDead;
     public bool IsDead => _isDead;
+    private bool _isCollected;
+    public bool IsCollected => _isCollected;
 
     private static List<Agent> allAgents = new List<Agent>();
     
@@ -361,8 +363,10 @@ public class AdvanceAgent : Agent
 
     public void Collect()
     {
-        if (!_isDead)
+        if (!_isDead || _isCollected)
             return;
+
+        _isCollected = true;
 
         StartCoroutine(RespawnCoroutine());
     }
@@ -382,6 +386,7 @@ public class AdvanceAgent : Agent
 
         _currentHealth = _maxHealth;
         _isDead = false;
+        _isCollected = false;
 
         Vector3 randomDirection = new Vector3(
             Random.Range(-1f, 1f),

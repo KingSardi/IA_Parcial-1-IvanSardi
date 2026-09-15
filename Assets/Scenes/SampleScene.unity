@@ -1295,6 +1295,8 @@ MonoBehaviour:
     waypointCheckDistance: 0.5
   _interestObjectPrefab: {fileID: 1522427154527327626, guid: fecd686a6636c7641945be4652b4db32, type: 3}
   _interestSpawnInterval: 5
+  _meleeDamage: 30
+  _rangeDamage: 10
 --- !u!1 &1991077967
 GameObject:
   m_ObjectHideFlags: 0

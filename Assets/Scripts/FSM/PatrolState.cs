@@ -29,6 +29,23 @@ public class PatrolState : State
 
     public override void Update()
     {
+        AdvanceAgent deadBoid = _agent.FindClosestDeadBoid();
+
+        if (deadBoid != null)
+        {
+            _agent.GatherTarget = deadBoid;
+            StateMachine.ChangeState(HunterStates.Gather);
+            return;
+        }
+
+        AdvanceAgent target = _agent.FindClosestAliveBoid();
+
+        if (_agent.CanAttack && target != null)
+        {
+            _agent.CurrentTarget = target;
+            StateMachine.ChangeState(HunterStates.Attack);
+            return;
+        }
 
         if (_isPlanting)
         {
@@ -38,7 +55,7 @@ public class PatrolState : State
 
         PatrolLoop();
         HandleInterestObjectSpawn();
-        Debug.Log("Estoy en Patrol");
+        //Debug.Log("Estoy en Patrol");
     }
 
     private void PatrolLoop()
