@@ -57,6 +57,7 @@ public class GatherState : State
 
     private void MoveToTarget()
     {
+        _agent.CurrentAction = "RECOLECTANDO";
         Vector3 direction =
             _agent.GatherTarget.transform.position -
             _agent.transform.position;
@@ -71,6 +72,7 @@ public class GatherState : State
 
     private void Gather()
     {
+        _agent.CurrentAction = "RECOLECTANDO";
         Debug.Log($"Hunter recolectó a {_agent.GatherTarget.name}");
 
         _agent.GatherTarget.Collect();

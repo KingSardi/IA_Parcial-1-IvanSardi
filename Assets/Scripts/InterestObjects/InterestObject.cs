@@ -11,6 +11,8 @@ public class InterestObject : MonoBehaviour
     private void Awake()
     {
         _currentHealth = _maxHealth;
+
+        GetComponent<Renderer>().material.color = Color.magenta;
     }
 
     public void TakeDamage(float damage)

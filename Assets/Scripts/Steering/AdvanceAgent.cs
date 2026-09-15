@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
-
+using TMPro;
 public class AdvanceAgent : Agent
 {
     [Header("Stats")]
@@ -21,22 +21,26 @@ public class AdvanceAgent : Agent
     private static List<Agent> allAgents = new List<Agent>();
     
     [Header("FlockingRadius")]
-    [SerializeField] private float _separationRadius = 2f;
-    [SerializeField] private float _cohesionRadius = 2f;
-    [SerializeField] private float _alignmentRadius = 2f;
+    [SerializeField] private float _separationRadius = 3f;
+    [SerializeField] private float _cohesionRadius = 10f;
+    [SerializeField] private float _alignmentRadius = 6f;
+    [SerializeField, Range(0f, 1f)] private float separationWeight = 0.6f;
+    [SerializeField, Range(0f, 1f)] private float cohesionWeight = 0.4f;
+    [SerializeField, Range(0f, 1f)] private float alignmentWeight = 0.8f;
 
     [Header("HunterRadius")]
-    [SerializeField] private float _hunterDetectionRadius = 8f;
+    [SerializeField] private float _hunterDetectionRadius = 10f;
 
     [Header("InterestRadius")]
-    [SerializeField] private float _interestDetectionRadius = 9f;
+    [SerializeField] private float _interestDetectionRadius = 8f;
     [SerializeField] private float _interestInteractionRadius = 1.5f;
     [SerializeField] private float _interactionInterval = 1f;
     [SerializeField] private float _interactionDamage = 1f;
 
-    [SerializeField, Range(0f, 1f)] private float separationWeight = 1f;
-    [SerializeField, Range(0f, 1f)] private float cohesionWeight = 1f;
-    [SerializeField, Range(0f, 1f)] private float alignmentWeight = 1f;
+    [Header("Visual Feedback")]
+    [SerializeField] private TMP_Text _behaviourText;
+
+    public string CurrentBehaviour { get; private set; } = "FLOCKING";
 
 
     [Header("References")]
@@ -73,7 +77,12 @@ public class AdvanceAgent : Agent
     private void Update()
     {
         if (_isDead)
+        {
+            CurrentBehaviour = "MUERTO";
+            UpdateBehaviourText();
+            UpdateBehaviourColor();
             return;
+        }
 
         DetectInterestObject();
         InteractWithInterestObject();
@@ -85,6 +94,9 @@ public class AdvanceAgent : Agent
             transform.forward = _velocity;
 
         transform.position = Bounds.Instance.OutOfBounds(transform.position);
+
+        UpdateBehaviourText();
+        UpdateBehaviourColor();
     }    
 
     private Vector3 SteeringVector()
@@ -92,6 +104,7 @@ public class AdvanceAgent : Agent
         if (_hunter != null &&
     InRange(_hunter.transform.position, _hunterDetectionRadius))
         {
+            CurrentBehaviour = "EVADIENDO";
             return Evade(_hunter);
         }
         
@@ -104,9 +117,10 @@ public class AdvanceAgent : Agent
 
             if (distance <= _interestInteractionRadius)
             {
+                CurrentBehaviour = "INTERACTUANDO";
                 return CalculateSteering(Vector3.zero);
             }
-
+            CurrentBehaviour = "LLEGANDO";
             return Arrive(_interestTarget.transform.position);
         }
 
@@ -123,6 +137,7 @@ public class AdvanceAgent : Agent
             case SteeringModes.Evade:
                 return Evade(_target);
             case SteeringModes.Flocking:
+                CurrentBehaviour = "FLOCKING";
                 return Flocking();
             default:
                 return Vector3.zero;
@@ -135,6 +150,8 @@ public class AdvanceAgent : Agent
                 + CalculateAlignment(allAgents, _alignmentRadius) * alignmentWeight 
                 + CalculateCohesion(allAgents, _cohesionRadius) * cohesionWeight;
     }
+
+
 
     private Vector3 CalculateSeparation(IEnumerable<Agent> list, float radius)
     {
@@ -251,7 +268,7 @@ public class AdvanceAgent : Agent
         Vector3 desired = direction.normalized * desiredSpeed;
         Vector3 steering = CalculateSteering(desired);
 
-        return CalculateSteering(desired);
+        return steering;
     }
 
     private Vector3 CalculateFuture(Agent target)
@@ -375,6 +392,11 @@ public class AdvanceAgent : Agent
     {
         _renderer.enabled = false;
 
+        if (_behaviourText != null)
+        {
+            _behaviourText.gameObject.SetActive(false);
+        }
+
         yield return new WaitForSeconds(_respawnDelay);
 
         Respawn();
@@ -388,6 +410,9 @@ public class AdvanceAgent : Agent
         _isDead = false;
         _isCollected = false;
 
+        CurrentBehaviour = "FLOCKING";
+        UpdateBehaviourText();
+
         Vector3 randomDirection = new Vector3(
             Random.Range(-1f, 1f),
             0f,
@@ -398,6 +423,11 @@ public class AdvanceAgent : Agent
 
         _renderer.enabled = true;
 
+        if (_behaviourText != null)
+        {
+            _behaviourText.gameObject.SetActive(true);
+        }
+
         Debug.Log($"{name} reapareció.");
     }
 
@@ -407,6 +437,43 @@ public class AdvanceAgent : Agent
         float randomZ = Random.Range(-13f, 13f);
 
         return new Vector3(randomX, transform.position.y, randomZ);
+    }
+
+    private void UpdateBehaviourText()
+    {
+        if (_behaviourText == null)
+            return;
+
+        _behaviourText.text = CurrentBehaviour;
+    }
+
+    private void UpdateBehaviourColor()
+    {
+        if (_renderer == null)
+            return;
+
+        switch (CurrentBehaviour)
+        {
+            case "FLOCKING":
+                _renderer.material.color = Color.green;
+                break;
+
+            case "EVADIENDO":
+                _renderer.material.color = Color.red;
+                break;
+
+            case "LLEGANDO":
+                _renderer.material.color = Color.yellow;
+                break;
+
+            case "INTERACTUANDO":
+                _renderer.material.color = Color.blue;
+                break;
+
+            case "MUERTO":
+                _renderer.material.color = Color.black;
+                break;
+        }
     }
 
     private void OnDrawGizmosSelected()

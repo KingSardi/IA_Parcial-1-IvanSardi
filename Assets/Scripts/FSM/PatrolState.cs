@@ -53,6 +53,7 @@ public class PatrolState : State
             return;
         }
 
+        _agent.CurrentAction = "PATRULLANDO";
         PatrolLoop();
         HandleInterestObjectSpawn();
         //Debug.Log("Estoy en Patrol");
@@ -92,6 +93,7 @@ public class PatrolState : State
         _spawnTimer = 0f;
         _plantingTimer = 0f;
         _isPlanting = true;
+        _agent.CurrentAction = "PLANTANDO";
 
         Debug.Log("Hunter comenzó a plantar una trampa.");
     }

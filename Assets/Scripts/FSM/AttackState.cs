@@ -54,6 +54,8 @@ public class AttackState : State
 
     private void MeleeAttack()
     {
+        //_agent.CurrentAction = "ATAQUE CERCANO";
+        _agent.ShowActionFeedback("CERCANO");
         Debug.Log($"Hunter realizó ataque MELEE a {_agent.CurrentTarget.name}");
 
         _agent.CurrentTarget.TakeDamage(_agent.MeleeDamage);
@@ -66,6 +68,8 @@ public class AttackState : State
 
     private void RangeAttack()
     {
+        //_agent.CurrentAction = "ATAQUE LEJANO";
+        _agent.ShowActionFeedback("LEJANO");
         Debug.Log($"Hunter realizó ataque RANGED a {_agent.CurrentTarget.name}");
 
         _agent.CurrentTarget.TakeDamage(_agent.RangeDamage);
@@ -78,6 +82,7 @@ public class AttackState : State
 
     private void Pursue()
     {
+        _agent.CurrentAction = "PERSIGUIENDO";
         float predictionTime = 1f;
 
         Vector3 futurePosition =

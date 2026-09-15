@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public enum HunterStates
 {
@@ -12,7 +13,7 @@ public class FSMAgent : MonoBehaviour
 {
     [Header("Hunter Stats")]
     [SerializeField] private float _TBA = 3f;
-    [SerializeField] private float _rangeAttackRadius = 8f;
+    [SerializeField] private float _rangeAttackRadius = 5f;
     [SerializeField] private float _meleeAttackRadius = 2f;
     public float speed = 3f;
     private float _attackTimer;
@@ -33,9 +34,15 @@ public class FSMAgent : MonoBehaviour
 
     public float MeleeDamage => _meleeDamage;
     public float RangeDamage => _rangeDamage;
+    
+    [Header("Visual Feedback")]
+    [SerializeField] private TMP_Text _stateText;
+    [SerializeField] private Renderer _hunterRenderer;
 
+    
     public AdvanceAgent CurrentTarget { get; set; }
     public AdvanceAgent GatherTarget { get; set; }
+    public string CurrentAction { get; set; } = "NONE";
     public InterestObject InterestObjectPrefab => _interestObjectPrefab;
     public bool CanAttack => _attackTimer <= 0f;
     public float PerceptionRadius => _perceptionRadius;
@@ -43,6 +50,27 @@ public class FSMAgent : MonoBehaviour
     public float RangeAttackRadius => _rangeAttackRadius;
 
     private StateMachine _stateMachine;
+
+    public string CurrentStateName
+    {
+        get
+        {
+            if (_stateMachine == null || _stateMachine.CurrentState == null)
+            {
+                return "None";
+            }
+
+            return _stateMachine.CurrentState
+                .GetType()
+                .Name
+                .Replace("State", "");
+        }
+    }
+
+    public string LastAction { get; private set; } = "NONE";
+
+    private float _lastActionTimer;
+    private const float LastActionDuration = 1.5f;
 
     private void Awake()
     {
@@ -70,6 +98,35 @@ public class FSMAgent : MonoBehaviour
         }
 
         _stateMachine.Update();
+
+        if (_stateText != null)
+        {
+            string targetName = "NONE";
+
+            if (CurrentTarget != null)
+            {
+                targetName = CurrentTarget.name;
+            }
+            else if (GatherTarget != null)
+            {
+                targetName = GatherTarget.name;
+            }
+
+            if (_lastActionTimer > 0f)
+            {
+                _lastActionTimer -= Time.deltaTime;
+
+                if (_lastActionTimer <= 0f)
+                {
+                    LastAction = "NONE";
+                }
+            }
+
+            _stateText.text =
+                $"State:{CurrentStateName.ToUpper()}\n" + $"Target: {targetName}\n" + $"Action: {CurrentAction}\n" + $"Last Attack: {LastAction}"; 
+        }
+        
+        UpdateStateColor();
     }
 
     public void ResetAttackTimer()
@@ -129,6 +186,34 @@ public class FSMAgent : MonoBehaviour
 
         return closestBoid;
     }
+
+    private void UpdateStateColor()
+    {
+        if (_hunterRenderer == null)
+            return;
+
+        switch (CurrentStateName)
+        {
+            case "Patrol":
+                _hunterRenderer.material.color = Color.green;
+                break;
+
+            case "Attack":
+                _hunterRenderer.material.color = Color.red;
+                break;
+
+            case "Gather":
+                _hunterRenderer.material.color = Color.yellow;
+                break;
+        }
+    }
+    public void ShowActionFeedback(string action)
+    {
+        LastAction = action;
+        _lastActionTimer = LastActionDuration;
+    }
+
+
 
     private void OnDrawGizmosSelected()
     {
