@@ -12,12 +12,12 @@ public class AttackState : State
 
     public override void Enter()
     {
-        Debug.Log("Entró a Attack");
+        //Debug.Log("Entro a Attack");
     }
 
     public override void Exit()
     {
-        Debug.Log("Salió de Attack");
+        //Debug.Log("Salio de Attack");
     }
 
     public override void Update()
@@ -56,7 +56,7 @@ public class AttackState : State
     {
         //_agent.CurrentAction = "ATAQUE CERCANO";
         _agent.ShowActionFeedback("CERCANO");
-        Debug.Log($"Hunter realizó ataque MELEE a {_agent.CurrentTarget.name}");
+        //Debug.Log($"Hunter realizó ataque MELEE a {_agent.CurrentTarget.name}");
 
         _agent.CurrentTarget.TakeDamage(_agent.MeleeDamage);
 
@@ -70,7 +70,7 @@ public class AttackState : State
     {
         //_agent.CurrentAction = "ATAQUE LEJANO";
         _agent.ShowActionFeedback("LEJANO");
-        Debug.Log($"Hunter realizó ataque RANGED a {_agent.CurrentTarget.name}");
+        //Debug.Log($"Hunter realizó ataque RANGED a {_agent.CurrentTarget.name}");
 
         _agent.CurrentTarget.TakeDamage(_agent.RangeDamage);
 

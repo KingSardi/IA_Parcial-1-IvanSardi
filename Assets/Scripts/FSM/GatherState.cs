@@ -17,12 +17,12 @@ public class GatherState : State
     public override void Enter()
     {
         _gatherTimer = 0f;
-        Debug.Log($"Entró a Gather. Objetivo: {_agent.GatherTarget.name}");
+        //Debug.Log($"Entro a Gather. Objetivo: {_agent.GatherTarget.name}");
     }
 
     public override void Exit()
     {
-        Debug.Log("Salió de Gather");
+        //Debug.Log("Salio de Gather");
     }
 
     public override void Update()
@@ -73,7 +73,7 @@ public class GatherState : State
     private void Gather()
     {
         _agent.CurrentAction = "RECOLECTANDO";
-        Debug.Log($"Hunter recolectó a {_agent.GatherTarget.name}");
+        //Debug.Log($"Hunter recolecto a {_agent.GatherTarget.name}");
 
         _agent.GatherTarget.Collect();
 

@@ -19,7 +19,7 @@ public class InterestObject : MonoBehaviour
     {
         _currentHealth -= damage;
 
-        Debug.Log($"{name} recibió {damage} de daño. Vida restante: {_currentHealth}");
+        Debug.Log($"{name} recibio {damage} Vida: {_currentHealth}");
 
         if (_currentHealth <= 0f)
         {

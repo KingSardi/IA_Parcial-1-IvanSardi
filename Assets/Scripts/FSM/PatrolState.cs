@@ -6,7 +6,6 @@ public class PatrolState : State
     private FSMAgent _agent;
     private PatrolData _data;
     private int currentNode;
-    private int direction = 1;
     private float _spawnTimer;
     private bool _isPlanting;
     private float _plantingTimer;
@@ -19,12 +18,12 @@ public class PatrolState : State
 
     public override void Enter()
     {
-        Debug.Log("Entre Patrol");
+        //Debug.Log("Entre Patrol");
     }
 
     public override void Exit()
     {
-        Debug.Log("Sali Patrol");
+        //Debug.Log("Sali Patrol");
     }
 
     public override void Update()
@@ -95,7 +94,7 @@ public class PatrolState : State
         _isPlanting = true;
         _agent.CurrentAction = "PLANTANDO";
 
-        Debug.Log("Hunter comenzó a plantar una trampa.");
+        //Debug.Log("Hunter comenzo a plantar una trampa.");
     }
 
     private void HandlePlanting()
@@ -116,7 +115,7 @@ public class PatrolState : State
 
         _isPlanting = false;
 
-        Debug.Log("Hunter plantó una trampa.");
+        //Debug.Log("Hunter planto una trampa.");
     }
 }
 

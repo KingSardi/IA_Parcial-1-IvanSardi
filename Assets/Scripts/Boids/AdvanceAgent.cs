@@ -5,7 +5,7 @@ using TMPro;
 public class AdvanceAgent : Agent
 {
     [Header("Stats")]
-    [SerializeField] private float _maxHealth = 10f;
+    [SerializeField] private float _maxHealth = 1f;
     [SerializeField] private float _respawnDelay = 5f;
     [SerializeField] private float _maxSpeed = 3f;
     [SerializeField] private float _maxSteering = 3f;
@@ -360,7 +360,7 @@ public class AdvanceAgent : Agent
 
         _currentHealth -= damage;
 
-        Debug.Log($"{name} recibió {damage} de daño. Vida: {_currentHealth}");
+        //Debug.Log($"{name} recibio {damage} de daño. Vida: {_currentHealth}");
 
         if (_currentHealth <= 0f)
         {
@@ -375,7 +375,7 @@ public class AdvanceAgent : Agent
 
         _velocity = Vector3.zero;
 
-        Debug.Log($"{name} murió y quedó inactivo.");
+        //Debug.Log($"{name} murio ");
     }
 
     public void Collect()
@@ -428,7 +428,7 @@ public class AdvanceAgent : Agent
             _behaviourText.gameObject.SetActive(true);
         }
 
-        Debug.Log($"{name} reapareció.");
+        //Debug.Log($"{name} respawneo.");
     }
 
     private Vector3 GetRandomPosition()
