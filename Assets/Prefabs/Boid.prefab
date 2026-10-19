@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2156002321143669364}
   - component: {fileID: 467600672382369949}
   - component: {fileID: 5114777217143730286}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Boid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 9085214950612502052}
   - component: {fileID: 1958458854619281755}
   - component: {fileID: 7446814496230321725}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BehaviorText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
