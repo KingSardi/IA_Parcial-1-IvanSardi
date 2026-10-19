@@ -2231,7 +2231,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1319238676}
   - component: {fileID: 1319238678}
-  - component: {fileID: 1319238677}
   m_Layer: 0
   m_Name: NavigationGraph
   m_TagString: Untagged
@@ -2255,20 +2254,6 @@ Transform:
   - {fileID: 127383011}
   m_Father: {fileID: 2140067248}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1319238677
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1319238675}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcc5c0bc7dc5d0a46b2920dbff315c22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NavigationGraphDebugger
-  _graph: {fileID: 1319238678}
-  _testTarget: {fileID: 1965250479}
 --- !u!114 &1319238678
 MonoBehaviour:
   m_ObjectHideFlags: 0

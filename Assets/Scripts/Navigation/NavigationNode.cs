@@ -14,6 +14,31 @@ public class NavigationNode : MonoBehaviour
     public IReadOnlyList<NavigationNode> Neighbours => _neighbours;
     public Vector3 Position => transform.position;
 
+
+    public bool CanReachNeighbour(NavigationNode neighbour)
+    {
+        if (neighbour == null)
+            return false;
+
+        Vector3 direction = neighbour.Position - Position;
+        float distance = direction.magnitude;
+
+        if (distance < 0.01f)
+            return true;
+
+        if (Physics.CheckSphere(Position,_agentRadius,_obstacleLayer))
+        {
+            return false;
+        }
+
+        if (Physics.CheckSphere(neighbour.Position,_agentRadius,_obstacleLayer))
+        {
+            return false;
+        }
+
+        return !Physics.SphereCast(Position,_agentRadius,direction.normalized,out _,distance,_obstacleLayer );
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
@@ -24,22 +49,9 @@ public class NavigationNode : MonoBehaviour
             if (neighbour == null)
                 continue;
 
-            Vector3 direction = neighbour.Position - Position;
-            float distance = direction.magnitude;
+            bool accessible = CanReachNeighbour(neighbour);
 
-            if (distance < 0.01f)
-                continue;
-
-            bool blocked = Physics.SphereCast(
-                Position,
-                _agentRadius,
-                direction.normalized,
-                out _,
-                distance,
-                _obstacleLayer
-            );
-
-            Gizmos.color = blocked ? Color.red : Color.green;
+            Gizmos.color = accessible ? Color.green : Color.red;
 
             Gizmos.DrawLine(Position, neighbour.Position);
         }
