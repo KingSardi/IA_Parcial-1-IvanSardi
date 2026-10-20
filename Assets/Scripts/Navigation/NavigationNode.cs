@@ -5,8 +5,12 @@ using UnityEngine;
 public class NavigationNode : MonoBehaviour
 {
     [Header("Node Connections")]
-    [SerializeField]
-    private List<NavigationNode> _neighbours = new();
+    [SerializeField] private List<NavigationNode> _neighbours = new();
+    
+    [Header("Navigation Permissions")]
+    [SerializeField] private bool _wolvesAllowed = true;
+
+    public bool WolvesAllowed => _wolvesAllowed;
 
     [Header("Connection Validation")]
     [SerializeField] private LayerMask _obstacleLayer;
