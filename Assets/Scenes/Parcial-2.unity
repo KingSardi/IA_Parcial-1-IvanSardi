@@ -344,6 +344,7 @@ MonoBehaviour:
   - {fileID: 1902079414}
   - {fileID: 1562090027}
   - {fileID: 0}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -381,6 +382,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 1606871925}
   - {fileID: 476317502}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -614,6 +616,7 @@ MonoBehaviour:
   - {fileID: 1902079414}
   - {fileID: 1506462033}
   - {fileID: 0}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -666,6 +669,7 @@ MonoBehaviour:
   - {fileID: 1506462033}
   - {fileID: 1379011792}
   - {fileID: 1402220021}
+  _wolvesAllowed: 0
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -811,6 +815,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 984833031}
   - {fileID: 18472933}
   - {fileID: 394129497}
   - {fileID: 1438796832}
@@ -864,6 +869,7 @@ MonoBehaviour:
   - {fileID: 1018611078}
   - {fileID: 1999889639}
   - {fileID: 507579750}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -964,6 +970,7 @@ MonoBehaviour:
   _neighbours:
   - {fileID: 657137555}
   - {fileID: 1606871925}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -1597,6 +1604,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 355933147}
   - {fileID: 873720677}
   - {fileID: 319318256}
   - {fileID: 1927468742}
@@ -1669,6 +1677,59 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 29286108c408f1943bd69839d5763124, type: 3}
+--- !u!1 &355933146
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 355933147}
+  - component: {fileID: 355933148}
+  m_Layer: 0
+  m_Name: WolfRestrictedVoume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &355933147
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 355933146}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 23.43, y: 1, z: -24.04}
+  m_LocalScale: {x: 8, y: 4, z: 6}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 341670195}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &355933148
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 355933146}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &394129496
 GameObject:
   m_ObjectHideFlags: 0
@@ -1975,6 +2036,7 @@ MonoBehaviour:
   - {fileID: 124555343}
   - {fileID: 977780919}
   - {fileID: 713742238}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2042,6 +2104,7 @@ MonoBehaviour:
   - {fileID: 977780919}
   - {fileID: 278756937}
   - {fileID: 1379011792}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2208,8 +2271,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NavigationNode
   _neighbours:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 794700213}
+  - {fileID: 1414138429}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2294,6 +2358,7 @@ MonoBehaviour:
   _neighbours:
   - {fileID: 295432319}
   - {fileID: 0}
+  _wolvesAllowed: 0
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2459,6 +2524,7 @@ MonoBehaviour:
   - {fileID: 476317502}
   - {fileID: 1999889639}
   - {fileID: 0}
+  _wolvesAllowed: 0
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2614,10 +2680,16 @@ MonoBehaviour:
   - {fileID: 1506462033}
   - {fileID: 1402220021}
   - {fileID: 624415900}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
   _agentRadius: 0.5
+--- !u!1 &797836789 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7374834347977865747, guid: 8688bf952b269cc4d96f6b347c119249, type: 3}
+  m_PrefabInstance: {fileID: 1965250478}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &802608518
 GameObject:
   m_ObjectHideFlags: 0
@@ -3228,6 +3300,7 @@ MonoBehaviour:
   - {fileID: 476317502}
   - {fileID: 507579750}
   - {fileID: 1999889639}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -3247,6 +3320,171 @@ Transform:
   m_Children: []
   m_Father: {fileID: 127383011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &984833030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 984833031}
+  - component: {fileID: 984833032}
+  m_Layer: 0
+  m_Name: WolfRestrictedVoume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &984833031
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984833030}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 38.75, y: 1, z: -0.42}
+  m_LocalScale: {x: 1, y: 4, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 217076969}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &984833032
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984833030}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 8, y: 1, z: 6}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1015365096
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1015365097}
+  - component: {fileID: 1015365100}
+  - component: {fileID: 1015365099}
+  - component: {fileID: 1015365098}
+  m_Layer: 0
+  m_Name: Sphere
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1015365097
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015365096}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1191025149}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1015365098
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015365096}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1015365099
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015365096}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1015365100
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015365096}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1017594111
 GameObject:
   m_ObjectHideFlags: 0
@@ -3330,6 +3568,7 @@ MonoBehaviour:
   - {fileID: 278756937}
   - {fileID: 0}
   - {fileID: 0}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -3691,11 +3930,96 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1151871503}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1170171230
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1170171231}
+  - component: {fileID: 1170171232}
+  m_Layer: 9
+  m_Name: WolfRestrictedVoume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1170171231
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170171230}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -11.65, y: 1, z: 0}
+  m_LocalScale: {x: 10, y: 4, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1778763173}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1170171232
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1170171230}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1187516120 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7454660473482317327, guid: 29286108c408f1943bd69839d5763124, type: 3}
   m_PrefabInstance: {fileID: 293609555}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1191025148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1191025149}
+  m_Layer: 0
+  m_Name: Wolf_TestDestination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1191025149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1191025148}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1015365097}
+  m_Father: {fileID: 2140067248}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1196198214 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7454660473482317327, guid: 29286108c408f1943bd69839d5763124, type: 3}
@@ -4237,6 +4561,7 @@ MonoBehaviour:
   _neighbours:
   - {fileID: 187457938}
   - {fileID: 507579750}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -4304,6 +4629,7 @@ MonoBehaviour:
   - {fileID: 187457938}
   - {fileID: 794700213}
   - {fileID: 1414138429}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -4356,6 +4682,7 @@ MonoBehaviour:
   - {fileID: 977780919}
   - {fileID: 624415900}
   - {fileID: 1402220021}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -4520,6 +4847,7 @@ MonoBehaviour:
   - {fileID: 1902079414}
   - {fileID: 1562090027}
   - {fileID: 0}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -4557,6 +4885,7 @@ MonoBehaviour:
   - {fileID: 182937657}
   - {fileID: 187457938}
   - {fileID: 794700213}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -4624,6 +4953,7 @@ MonoBehaviour:
   - {fileID: 1606871925}
   - {fileID: 64365450}
   - {fileID: 1493453026}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -4796,6 +5126,7 @@ MonoBehaviour:
   - {fileID: 295432319}
   - {fileID: 124555343}
   - {fileID: 1562090027}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -5213,6 +5544,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1962568569}
+  - {fileID: 1170171231}
   m_Father: {fileID: 1581267221}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1894633858
@@ -5296,6 +5628,7 @@ MonoBehaviour:
   - {fileID: 64365450}
   - {fileID: 1493453026}
   - {fileID: 182937657}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -5660,13 +5993,37 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7374834347977865747, guid: 8688bf952b269cc4d96f6b347c119249, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 1965250486}
   m_SourcePrefab: {fileID: 100100000, guid: 8688bf952b269cc4d96f6b347c119249, type: 3}
 --- !u!4 &1965250479 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3091739328850801544, guid: 8688bf952b269cc4d96f6b347c119249, type: 3}
   m_PrefabInstance: {fileID: 1965250478}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1965250486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 797836789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56e28da142b260741b4831a20f9bc284, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WolfPathFollower
+  _navigationGraph: {fileID: 1319238678}
+  _destination: {fileID: 1191025149}
+  _moveSpeed: 8
+  _rotationSpeed: 8
+  _arrivalDistance: 0.3
+  _obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  _agentRadius: 0.5
 --- !u!1 &1982483748
 GameObject:
   m_ObjectHideFlags: 0
@@ -5858,6 +6215,7 @@ MonoBehaviour:
   - {fileID: 977780919}
   - {fileID: 713742238}
   - {fileID: 278756937}
+  _wolvesAllowed: 1
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -6056,6 +6414,7 @@ Transform:
   - {fileID: 651333850}
   - {fileID: 1319238676}
   - {fileID: 1581267221}
+  - {fileID: 1191025149}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807

@@ -9,6 +9,15 @@ public class AStarPathfinder
     private readonly HashSet<NavigationNode> _closedSet = new();
     private readonly List<NavigationNode> _openSet = new();
 
+    private readonly LayerMask _restrictedLayer;
+    private readonly float _agentRadius;
+
+    public AStarPathfinder(LayerMask restrictedLayer = default, float agentRadius = 0.5f)
+    {
+        _restrictedLayer = restrictedLayer;
+        _agentRadius = agentRadius;
+    }
+
     public List<NavigationNode> FindPath(NavigationNode start, NavigationNode goal, bool isWolf = false)
     {
         _gScore.Clear();
@@ -46,6 +55,9 @@ public class AStarPathfinder
                 if (!current.CanReachNeighbour(neighbour))
                     continue;
 
+                if (isWolf && CrossesRestrictedZone(current.Position, neighbour.Position))
+                    continue;
+
                 float movementCost = Vector3.Distance(current.Position, neighbour.Position);
                 float tentativeGScore = _gScore[current] + movementCost;
 
@@ -61,6 +73,26 @@ public class AStarPathfinder
         }
 
         return new List<NavigationNode>();
+    }
+
+    private bool CrossesRestrictedZone(Vector3 start, Vector3 end)
+    {
+        if (_restrictedLayer.value == 0)
+            return false;
+
+        Vector3 direction = end - start;
+        float distance = direction.magnitude;
+
+        if (Physics.CheckSphere(start, _agentRadius, _restrictedLayer, QueryTriggerInteraction.Collide))
+            return true;
+
+        if (Physics.CheckSphere(end, _agentRadius, _restrictedLayer, QueryTriggerInteraction.Collide))
+            return true;
+
+        if (distance <= 0.001f)
+            return false;
+
+        return Physics.SphereCast(start, _agentRadius, direction.normalized, out _, distance, _restrictedLayer, QueryTriggerInteraction.Collide);
     }
 
     private NavigationNode GetLowestFCostNode(NavigationNode goal)

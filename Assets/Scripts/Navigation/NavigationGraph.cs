@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class NavigationGraph : MonoBehaviour
 {
-    [Header("Graph Nodes")]
-    [SerializeField]
-    private List<NavigationNode> _nodes = new();
-
-    [Header("Accessibility Settings")]
+    [SerializeField] private List<NavigationNode> _nodes = new();
     [SerializeField] private LayerMask _obstacleLayer;
     [SerializeField] private float _agentRadius = 0.5f;
 
     public IReadOnlyList<NavigationNode> Nodes => _nodes;
 
-    public NavigationNode GetClosestNode(Vector3 position)
+    public NavigationNode GetClosestNode(Vector3 position, bool isWolf = false)
     {
         NavigationNode closestNode = null;
         float closestDistance = float.MaxValue;
@@ -24,28 +20,22 @@ public class NavigationGraph : MonoBehaviour
             if (node == null)
                 continue;
 
+            if (isWolf && !node.WolvesAllowed)
+                continue;
+
             Vector3 direction = node.Position - position;
             float distance = direction.magnitude;
 
             if (distance < 0.01f)
                 return node;
 
-            bool startsOverlapping = Physics.CheckSphere(
-                position,
-                _agentRadius,
-                _obstacleLayer
-            );
+            if (Physics.CheckSphere(position, _agentRadius, _obstacleLayer))
+                continue;
 
-            bool blocked = Physics.SphereCast(
-                position,
-                _agentRadius,
-                direction.normalized,
-                out _,
-                distance,
-                _obstacleLayer
-            );
+            if (Physics.CheckSphere(node.Position, _agentRadius, _obstacleLayer))
+                continue;
 
-            if (startsOverlapping || blocked)
+            if (Physics.SphereCast(position, _agentRadius, direction.normalized, out _, distance, _obstacleLayer))
                 continue;
 
             float sqrDistance = direction.sqrMagnitude;
