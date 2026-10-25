@@ -22,15 +22,15 @@ public class WolfPathFollower : MonoBehaviour
     private List<NavigationNode> _path = new();
     private int _currentNodeIndex;
     private bool _hasPath;
+    private Vector3 _destinationPosition;
+    private bool _hasDestination;
+
+    public bool HasPath => _hasPath;
+    public bool HasArrived { get; private set; }
 
     private void Awake()
     {
         _pathfinder = new AStarPathfinder(_restrictedLayer, _agentRadius);
-    }
-
-    private void Start()
-    {
-        CalculatePath();
     }
 
     private void Update()
@@ -41,22 +41,40 @@ public class WolfPathFollower : MonoBehaviour
         FollowPath();
     }
 
+    public void SetDestination(Transform destination)
+    {
+        _destination = destination;
+        _hasDestination = destination != null;
+        _destinationPosition = _hasDestination ? destination.position : transform.position;
+        HasArrived = false;
+        CalculatePath();
+    }
+
+    public void SetDestination(Vector3 position)
+    {
+        _destination = null;
+        _destinationPosition = position;
+        _hasDestination = true;
+        HasArrived = false;
+        CalculatePath();
+    }
+
     private void CalculatePath()
     {
         _hasPath = false;
         _path.Clear();
+        _currentNodeIndex = 0;
 
-        if (_navigationGraph == null || _destination == null)
+        if (_navigationGraph == null || !_hasDestination)
             return;
 
         NavigationNode startNode = _navigationGraph.GetClosestNode(transform.position, true);
-        NavigationNode goalNode = _navigationGraph.GetClosestNode(_destination.position, true);
+        NavigationNode goalNode = _navigationGraph.GetClosestNode(_destinationPosition, true);
 
         if (startNode == null || goalNode == null)
             return;
 
         _path = _pathfinder.FindPath(startNode, goalNode, isWolf: true);
-        _currentNodeIndex = 0;
         _hasPath = _path.Count > 0;
     }
 
@@ -64,12 +82,13 @@ public class WolfPathFollower : MonoBehaviour
     {
         if (_currentNodeIndex >= _path.Count)
         {
-            Vector3 finalPosition = _destination.position;
+            Vector3 finalPosition = _destinationPosition;
             finalPosition.y = transform.position.y;
 
             if (Vector3.Distance(transform.position, finalPosition) <= _arrivalDistance)
             {
                 _hasPath = false;
+                HasArrived = true;
                 return;
             }
 
@@ -138,18 +157,9 @@ public class WolfPathFollower : MonoBehaviour
         if (direction.sqrMagnitude < 0.001f)
             return;
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            targetPosition,
-            _moveSpeed * Time.deltaTime
-        );
+        transform.position = Vector3.MoveTowards(transform.position, targetPosition, _moveSpeed * Time.deltaTime);
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            targetRotation,
-            _rotationSpeed * Time.deltaTime
-        );
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
     }
 }

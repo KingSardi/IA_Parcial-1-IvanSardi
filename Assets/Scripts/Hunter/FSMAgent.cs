@@ -1,12 +1,17 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public enum HunterStates
 {
-    Patrol,
+    Search,
     Attack,
-    Gather
+    Gather,
+    Flee,
+    Exit,
+    Dead,
+    Patrol
 }
 
 public class FSMAgent : MonoBehaviour
@@ -22,7 +27,6 @@ public class FSMAgent : MonoBehaviour
     [SerializeField] private float _perceptionRadius = 12f;
     [SerializeField] private PatrolData dataPatrol;
 
-    
     [Header("Interest Object Spawn")]
     [SerializeField] private InterestObject _interestObjectPrefab;
     [SerializeField] private float _interestSpawnInterval = 5f;
@@ -34,12 +38,15 @@ public class FSMAgent : MonoBehaviour
 
     public float MeleeDamage => _meleeDamage;
     public float RangeDamage => _rangeDamage;
-    
+
+    [Header("Respawn")]
+    [SerializeField] private Transform _respawnPoint;
+    [SerializeField] private float _respawnTime = 5f;
+
     [Header("Visual Feedback")]
     [SerializeField] private TMP_Text _stateText;
     [SerializeField] private Renderer _hunterRenderer;
 
-    
     public AdvanceAgent CurrentTarget { get; set; }
     public AdvanceAgent GatherTarget { get; set; }
     public string CurrentAction { get; set; } = "NONE";
@@ -51,19 +58,16 @@ public class FSMAgent : MonoBehaviour
 
     private StateMachine _stateMachine;
 
+    public bool IsDead => _stateMachine != null && _stateMachine.CurrentState is DeadState;
+
     public string CurrentStateName
     {
         get
         {
             if (_stateMachine == null || _stateMachine.CurrentState == null)
-            {
                 return "None";
-            }
 
-            return _stateMachine.CurrentState
-                .GetType()
-                .Name
-                .Replace("State", "");
+            return _stateMachine.CurrentState.GetType().Name.Replace("State", "");
         }
     }
 
@@ -76,56 +80,52 @@ public class FSMAgent : MonoBehaviour
     {
         _stateMachine = new StateMachine();
 
-        //IdleState idleState = new IdleState(_stateMachine);
         PatrolState patrolState = new PatrolState(this, dataPatrol, _stateMachine);
-        
+        SearchState searchState = new SearchState(this, dataPatrol, _stateMachine);
         AttackState attackState = new AttackState(this, _stateMachine);
         GatherState gatherState = new GatherState(this, _stateMachine);
+        DeadState deadState = new DeadState(this, _stateMachine, _respawnTime);
 
-        //_stateMachine.RegisterState(PoliceStates.Idle, idleState);
         _stateMachine.RegisterState(HunterStates.Patrol, patrolState);
+        _stateMachine.RegisterState(HunterStates.Search, searchState);
         _stateMachine.RegisterState(HunterStates.Attack, attackState);
         _stateMachine.RegisterState(HunterStates.Gather, gatherState);
+        _stateMachine.RegisterState(HunterStates.Dead, deadState);
 
-        _stateMachine.ChangeState(HunterStates.Patrol);
+        _stateMachine.ChangeState(HunterStates.Search);
     }
 
     private void Update()
     {
         if (_attackTimer > 0f)
-        {
             _attackTimer -= Time.deltaTime;
-        }
 
         _stateMachine.Update();
+
+        if (_lastActionTimer > 0f)
+        {
+            _lastActionTimer -= Time.deltaTime;
+
+            if (_lastActionTimer <= 0f)
+                LastAction = "NONE";
+        }
 
         if (_stateText != null)
         {
             string targetName = "NONE";
 
             if (CurrentTarget != null)
-            {
                 targetName = CurrentTarget.name;
-            }
             else if (GatherTarget != null)
-            {
                 targetName = GatherTarget.name;
-            }
-
-            if (_lastActionTimer > 0f)
-            {
-                _lastActionTimer -= Time.deltaTime;
-
-                if (_lastActionTimer <= 0f)
-                {
-                    LastAction = "NONE";
-                }
-            }
 
             _stateText.text =
-                $"State:{CurrentStateName.ToUpper()}\n" + $"Target: {targetName}\n" + $"Action: {CurrentAction}\n" + $"Last Attack: {LastAction}"; 
+                $"State: {CurrentStateName.ToUpper()}\n" +
+                $"Target: {targetName}\n" +
+                $"Action: {CurrentAction}\n" +
+                $"Last Attack: {LastAction}";
         }
-        
+
         UpdateStateColor();
     }
 
@@ -134,50 +134,69 @@ public class FSMAgent : MonoBehaviour
         _attackTimer = _TBA;
     }
 
+    public void Die()
+    {
+        if (IsDead || _stateMachine == null)
+            return;
+
+        _stateMachine.ChangeState(HunterStates.Dead);
+    }
+
+    public void Respawn()
+    {
+        if (_respawnPoint != null)
+        {
+            transform.position = _respawnPoint.position;
+            transform.rotation = _respawnPoint.rotation;
+        }
+
+        CurrentTarget = null;
+        GatherTarget = null;
+        CurrentAction = "NONE";
+        LastAction = "NONE";
+        _lastActionTimer = 0f;
+        _attackTimer = 0f;
+    }
+
     public AdvanceAgent FindClosestAliveBoid()
     {
-    AdvanceAgent[] boids = Object.FindObjectsByType<AdvanceAgent>(FindObjectsSortMode.None);
+        AdvanceAgent[] boids = Object.FindObjectsByType<AdvanceAgent>(FindObjectsSortMode.None);
 
-    AdvanceAgent closestBoid = null; float closestDistance = Mathf.Infinity;
+        AdvanceAgent closestBoid = null;
+        float closestDistance = Mathf.Infinity;
 
-    foreach (AdvanceAgent boid in boids)
+        foreach (AdvanceAgent boid in boids)
         {
-        if (boid.IsDead)
-            continue;
+            if (boid.IsDead)
+                continue;
 
-        float distance = Vector3.Distance(
-            transform.position,
-            boid.transform.position
-        );
+            float distance = Vector3.Distance(transform.position, boid.transform.position);
 
-        if (distance <= _perceptionRadius &&
-            distance<closestDistance)
+            if (distance <= _perceptionRadius && distance < closestDistance)
             {
-            closestDistance = distance;
-            closestBoid = boid;
+                closestDistance = distance;
+                closestBoid = boid;
             }
         }
 
         return closestBoid;
     }
+
     public AdvanceAgent FindClosestDeadBoid()
     {
-        AdvanceAgent[] boids =Object.FindObjectsByType<AdvanceAgent>(FindObjectsSortMode.None);
+        AdvanceAgent[] boids = Object.FindObjectsByType<AdvanceAgent>(FindObjectsSortMode.None);
 
-        AdvanceAgent closestBoid = null; float closestDistance = Mathf.Infinity;
+        AdvanceAgent closestBoid = null;
+        float closestDistance = Mathf.Infinity;
 
         foreach (AdvanceAgent boid in boids)
         {
             if (!boid.IsDead || boid.IsCollected)
                 continue;
 
-            float distance = Vector3.Distance(
-                transform.position,
-                boid.transform.position
-            );
+            float distance = Vector3.Distance(transform.position, boid.transform.position);
 
-            if (distance <= _perceptionRadius &&
-                distance < closestDistance)
+            if (distance <= _perceptionRadius && distance < closestDistance)
             {
                 closestDistance = distance;
                 closestBoid = boid;
@@ -194,6 +213,7 @@ public class FSMAgent : MonoBehaviour
 
         switch (CurrentStateName)
         {
+            case "Search":
             case "Patrol":
                 _hunterRenderer.material.color = Color.green;
                 break;
@@ -205,15 +225,26 @@ public class FSMAgent : MonoBehaviour
             case "Gather":
                 _hunterRenderer.material.color = Color.yellow;
                 break;
+
+            case "Dead":
+                _hunterRenderer.material.color = Color.gray;
+                break;
+
+            case "Flee":
+                _hunterRenderer.material.color = Color.cyan;
+                break;
+
+            case "Exit":
+                _hunterRenderer.material.color = Color.blue;
+                break;
         }
     }
+
     public void ShowActionFeedback(string action)
     {
         LastAction = action;
         _lastActionTimer = LastActionDuration;
     }
-
-
 
     private void OnDrawGizmosSelected()
     {

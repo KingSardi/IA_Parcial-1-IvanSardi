@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class WolfAlertReceiver : MonoBehaviour
@@ -11,12 +10,11 @@ public class WolfAlertReceiver : MonoBehaviour
     {
         AlertPosition = hunterPosition;
         HasAlert = true;
-
-        Debug.Log($"{name} recibió una alerta de manada.");
     }
 
     public void ClearAlert()
     {
         HasAlert = false;
+        AlertPosition = Vector3.zero;
     }
 }
