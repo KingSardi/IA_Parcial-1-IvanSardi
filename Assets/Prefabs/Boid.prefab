@@ -134,12 +134,14 @@ MonoBehaviour:
   _maxSteering: 3
   _slowingDistance: 3
   _minDistance: 0.1
-  _separationRadius: 3
+  _separationRadius: 4
   _cohesionRadius: 10
   _alignmentRadius: 6
-  separationWeight: 0.6
+  separationWeight: 0.8
   cohesionWeight: 0.4
   alignmentWeight: 0.8
+  _boundaryMargin: 3
+  _boundaryWeight: 2
   _hunterDetectionRadius: 10
   _interestDetectionRadius: 8
   _interestInteractionRadius: 1.5
