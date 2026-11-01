@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ public class AStarPathfinder
         _agentRadius = agentRadius;
     }
 
-    public List<NavigationNode> FindPath(NavigationNode start, NavigationNode goal, bool isWolf = false)
+    public List<NavigationNode> FindPath(NavigationNode start, NavigationNode goal, bool isWolf = false, Func<Vector3, Vector3, float> additionalCost = null)
     {
         _gScore.Clear();
         _cameFrom.Clear();
@@ -59,6 +60,10 @@ public class AStarPathfinder
                     continue;
 
                 float movementCost = Vector3.Distance(current.Position, neighbour.Position);
+
+                if (additionalCost != null)
+                    movementCost += Mathf.Max(0f, additionalCost(current.Position, neighbour.Position));
+
                 float tentativeGScore = _gScore[current] + movementCost;
 
                 if (!_gScore.TryGetValue(neighbour, out float previousGScore) || tentativeGScore < previousGScore)

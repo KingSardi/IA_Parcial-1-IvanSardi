@@ -1,39 +1,51 @@
+
 using UnityEngine;
 
 public class AttackState : State
 {
-    private FSMAgent _agent;
+    private readonly FSMAgent _agent;
 
-    public AttackState(FSMAgent agent, StateMachine stateMachine)
-        : base(stateMachine)
+    private const float PredictionTime = 1f;
+    private const float RepathInterval = 0.35f;
+    private const float RepathDistance = 1.5f;
+
+    private float _repathTimer;
+    private Vector3 _lastDestination;
+
+    public AttackState(FSMAgent agent, StateMachine stateMachine) : base(stateMachine)
     {
         _agent = agent;
     }
 
     public override void Enter()
     {
-        //Debug.Log("Entro a Attack");
+        _agent.CurrentAction = "PERSIGUIENDO";
+        _repathTimer = 0f;
+        _lastDestination = Vector3.positiveInfinity;
+
+        if (_agent.PathFollower != null)
+            _agent.PathFollower.Stop();
     }
 
     public override void Exit()
     {
-        //Debug.Log("Salio de Attack");
+        if (_agent.PathFollower != null)
+            _agent.PathFollower.Stop();
     }
 
     public override void Update()
     {
-        if (_agent.CurrentTarget == null)
+        if (_agent.CurrentTarget == null || _agent.CurrentTarget.IsDead)
         {
-            StateMachine.ChangeState(HunterStates.Patrol);
+            ReturnToSearch();
             return;
         }
-        
+
         float distance = Vector3.Distance(_agent.transform.position, _agent.CurrentTarget.transform.position);
 
         if (distance > _agent.PerceptionRadius)
         {
-            _agent.CurrentTarget = null;
-            StateMachine.ChangeState(HunterStates.Patrol);
+            ReturnToSearch();
             return;
         }
 
@@ -54,49 +66,53 @@ public class AttackState : State
 
     private void MeleeAttack()
     {
-        //_agent.CurrentAction = "ATAQUE CERCANO";
+        _agent.CurrentAction = "ATAQUE CERCANO";
         _agent.ShowActionFeedback("CERCANO");
-        //Debug.Log($"Hunter realizó ataque MELEE a {_agent.CurrentTarget.name}");
 
         _agent.CurrentTarget.TakeDamage(_agent.MeleeDamage);
-
         _agent.ResetAttackTimer();
-        _agent.CurrentTarget = null;
 
-        StateMachine.ChangeState(HunterStates.Patrol);
+        ReturnToSearch();
     }
 
     private void RangeAttack()
     {
-        //_agent.CurrentAction = "ATAQUE LEJANO";
+        _agent.CurrentAction = "ATAQUE LEJANO";
         _agent.ShowActionFeedback("LEJANO");
-        //Debug.Log($"Hunter realizó ataque RANGED a {_agent.CurrentTarget.name}");
 
         _agent.CurrentTarget.TakeDamage(_agent.RangeDamage);
-
         _agent.ResetAttackTimer();
-        _agent.CurrentTarget = null;
 
-        StateMachine.ChangeState(HunterStates.Patrol);
+        ReturnToSearch();
     }
 
     private void Pursue()
     {
         _agent.CurrentAction = "PERSIGUIENDO";
-        float predictionTime = 1f;
 
-        Vector3 futurePosition =
-            _agent.CurrentTarget.transform.position +
-            _agent.CurrentTarget.Velocity * predictionTime;
+        if (_agent.PathFollower == null)
+            return;
 
-        Vector3 direction =
-            futurePosition - _agent.transform.position;
+        Vector3 futurePosition = _agent.CurrentTarget.transform.position + _agent.CurrentTarget.Velocity * PredictionTime;
+        futurePosition.y = _agent.transform.position.y;
 
-        direction.y = 0f;
+        _repathTimer -= Time.deltaTime;
 
-        _agent.transform.position +=
-            direction.normalized *
-            _agent.speed *
-            Time.deltaTime;
+        if (_repathTimer > 0f)
+            return;
+
+        if (Vector3.Distance(futurePosition, _lastDestination) < RepathDistance && _agent.PathFollower.HasPath)
+            return;
+
+        _agent.PathFollower.SetDestination(futurePosition);
+
+        _lastDestination = futurePosition;
+        _repathTimer = RepathInterval;
+    }
+
+    private void ReturnToSearch()
+    {
+        _agent.CurrentTarget = null;
+        StateMachine.ChangeState(HunterStates.Search);
     }
 }

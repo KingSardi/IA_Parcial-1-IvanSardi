@@ -39,10 +39,39 @@ public class FSMAgent : MonoBehaviour
     public float MeleeDamage => _meleeDamage;
     public float RangeDamage => _rangeDamage;
 
+    [Header("Gather")]
+    [SerializeField] private int _requiredGathers = 3;
+    [SerializeField] private float _gatherDistance = 1.5f;
+    [SerializeField] private float _gatherDuration = 2f;
+
+    private int _gatherCount;
+
+    public int RequiredGathers => _requiredGathers;
+    public int GatherCount => _gatherCount;
+    public float GatherDistance => _gatherDistance;
+    public float GatherDuration => _gatherDuration;
+    public bool HasCompletedGathers => _gatherCount >= _requiredGathers;
+
+    [Header("Exit")]
+    [SerializeField] private Transform _exitPoint;
+
+    public Transform ExitPoint => _exitPoint;
+
+    [Header("Flee")]
+    [SerializeField] private NavigationGraph _navigationGraph;
+    [SerializeField] private SafeZoneDetector _safeZoneDetector;
+    [SerializeField] private float _safeZoneWaitTime = 3f;
+
+    private HunterWolfSensor _wolfSensor;
+
+    public float SafeZoneWaitTime => _safeZoneWaitTime;
+
+
     [Header("Respawn")]
     [SerializeField] private Transform _respawnPoint;
     [SerializeField] private float _respawnTime = 5f;
 
+   
     [Header("Visual Feedback")]
     [SerializeField] private TMP_Text _stateText;
     [SerializeField] private Renderer _hunterRenderer;
@@ -55,8 +84,10 @@ public class FSMAgent : MonoBehaviour
     public float PerceptionRadius => _perceptionRadius;
     public float MeleeAttackRadius => _meleeAttackRadius;
     public float RangeAttackRadius => _rangeAttackRadius;
+    public HunterPathFollower PathFollower => _pathFollower;
 
     private StateMachine _stateMachine;
+    private HunterPathFollower _pathFollower;
 
     public bool IsDead => _stateMachine != null && _stateMachine.CurrentState is DeadState;
 
@@ -78,19 +109,25 @@ public class FSMAgent : MonoBehaviour
 
     private void Awake()
     {
+        _pathFollower = GetComponent<HunterPathFollower>();
         _stateMachine = new StateMachine();
+        _wolfSensor = GetComponent<HunterWolfSensor>();
 
         PatrolState patrolState = new PatrolState(this, dataPatrol, _stateMachine);
         SearchState searchState = new SearchState(this, dataPatrol, _stateMachine);
         AttackState attackState = new AttackState(this, _stateMachine);
         GatherState gatherState = new GatherState(this, _stateMachine);
         DeadState deadState = new DeadState(this, _stateMachine, _respawnTime);
+        ExitState exitState = new ExitState(this, _stateMachine);
+        FleeState fleeState = new FleeState(this, _navigationGraph, _safeZoneDetector, _stateMachine);
 
         _stateMachine.RegisterState(HunterStates.Patrol, patrolState);
         _stateMachine.RegisterState(HunterStates.Search, searchState);
         _stateMachine.RegisterState(HunterStates.Attack, attackState);
         _stateMachine.RegisterState(HunterStates.Gather, gatherState);
         _stateMachine.RegisterState(HunterStates.Dead, deadState);
+        _stateMachine.RegisterState(HunterStates.Exit, exitState);
+        _stateMachine.RegisterState(HunterStates.Flee, fleeState);
 
         _stateMachine.ChangeState(HunterStates.Search);
     }
@@ -99,6 +136,21 @@ public class FSMAgent : MonoBehaviour
     {
         if (_attackTimer > 0f)
             _attackTimer -= Time.deltaTime;
+
+        if (_wolfSensor != null && !IsDead)
+        {
+            _wolfSensor.Scan();
+
+            bool insideSafeZone = _safeZoneDetector != null &&
+                                  _safeZoneDetector.IsInsideSafeZone(transform.position);
+
+            if (_wolfSensor.CanSeeWolf &&
+                !insideSafeZone &&
+                !(_stateMachine.CurrentState is FleeState))
+            {
+                _stateMachine.ChangeState(HunterStates.Flee);
+            }
+        }
 
         _stateMachine.Update();
 
@@ -156,6 +208,7 @@ public class FSMAgent : MonoBehaviour
         LastAction = "NONE";
         _lastActionTimer = 0f;
         _attackTimer = 0f;
+        _gatherCount = 0;
     }
 
     public AdvanceAgent FindClosestAliveBoid()
@@ -244,6 +297,11 @@ public class FSMAgent : MonoBehaviour
     {
         LastAction = action;
         _lastActionTimer = LastActionDuration;
+    }
+
+    public void RegisterGather()
+    {
+        _gatherCount++;
     }
 
     private void OnDrawGizmosSelected()

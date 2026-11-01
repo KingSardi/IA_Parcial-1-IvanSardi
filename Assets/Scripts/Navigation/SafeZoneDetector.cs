@@ -6,6 +6,8 @@ public class SafeZoneDetector : MonoBehaviour
     [Header("Safe Zones")]
     [SerializeField] private Collider[] _safeZones;
 
+    public Collider[] SafeZones => _safeZones;
+
     public bool IsInsideSafeZone(Vector3 position)
     {
         foreach (Collider safeZone in _safeZones)

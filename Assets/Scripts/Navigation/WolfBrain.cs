@@ -17,6 +17,7 @@ public class WolfBrain : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Transform _hunter;
+    [SerializeField] private SafeZoneDetector _safeZoneDetector;
 
     [Header("Chase")]
     [SerializeField] private float _repathInterval = 0.5f;
@@ -30,7 +31,6 @@ public class WolfBrain : MonoBehaviour
     private WolfVisionSensor _vision;
     private WolfHowlEmitter _howl;
     private WolfAlertReceiver _alert;
-    private SafeZoneDetector _safeZoneDetector;
     private FSMAgent _hunterAgent;
 
     private WolfState _currentState = WolfState.Patrol;
@@ -51,7 +51,6 @@ public class WolfBrain : MonoBehaviour
 
         if (_hunter != null)
         {
-            _safeZoneDetector = _hunter.GetComponent<SafeZoneDetector>();
             _hunterAgent = _hunter.GetComponent<FSMAgent>();
         }
     }

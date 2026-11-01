@@ -1,15 +1,18 @@
+
 using UnityEngine;
 
 public class GatherState : State
 {
-    private FSMAgent _agent;
+    private readonly FSMAgent _agent;
 
-    private float _gatherDistance = 1.5f;
-    private float _gatherDuration = 2f;
     private float _gatherTimer;
+    private float _repathTimer;
+    private Vector3 _lastDestination;
 
-    public GatherState(FSMAgent agent, StateMachine stateMachine)
-        : base(stateMachine)
+    private const float RepathInterval = 0.5f;
+    private const float RepathDistance = 1f;
+
+    public GatherState(FSMAgent agent, StateMachine stateMachine) : base(stateMachine)
     {
         _agent = agent;
     }
@@ -17,68 +20,104 @@ public class GatherState : State
     public override void Enter()
     {
         _gatherTimer = 0f;
-        //Debug.Log($"Entro a Gather. Objetivo: {_agent.GatherTarget.name}");
+        _repathTimer = 0f;
+        _lastDestination = Vector3.positiveInfinity;
+        _agent.CurrentAction = "YENDO A RECOLECTAR";
+
+        if (_agent.PathFollower != null)
+            _agent.PathFollower.Stop();
     }
 
     public override void Exit()
     {
-        //Debug.Log("Salio de Gather");
+        if (_agent.PathFollower != null)
+            _agent.PathFollower.Stop();
     }
 
     public override void Update()
     {
-        if (_agent.GatherTarget == null ||
-            !_agent.GatherTarget.IsDead ||
-            _agent.GatherTarget.IsCollected)
+        if (!IsTargetValid())
         {
-            _agent.GatherTarget = null;
-            StateMachine.ChangeState(HunterStates.Patrol);
+            ReturnToSearch();
             return;
         }
 
-        float distance = Vector3.Distance(
-            _agent.transform.position,
-            _agent.GatherTarget.transform.position
-        );
+        Vector3 targetPosition = _agent.GatherTarget.transform.position;
+        targetPosition.y = _agent.transform.position.y;
 
-        if (distance > _gatherDistance)
+        float distance = Vector3.Distance(_agent.transform.position, targetPosition);
+
+        if (distance > _agent.GatherDistance)
         {
-            MoveToTarget();
+            _gatherTimer = 0f;
+            MoveToTarget(targetPosition);
             return;
         }
 
+        if (_agent.PathFollower != null && _agent.PathFollower.HasPath)
+            _agent.PathFollower.Stop();
+
+        _agent.CurrentAction = "RECOLECTANDO";
         _gatherTimer += Time.deltaTime;
 
-        if (_gatherTimer >= _gatherDuration)
-        {
+        if (_gatherTimer >= _agent.GatherDuration)
             Gather();
-        }
     }
 
-    private void MoveToTarget()
+    private bool IsTargetValid()
     {
-        _agent.CurrentAction = "RECOLECTANDO";
-        Vector3 direction =
-            _agent.GatherTarget.transform.position -
-            _agent.transform.position;
+        return _agent.GatherTarget != null &&
+               _agent.GatherTarget.IsDead &&
+               !_agent.GatherTarget.IsCollected;
+    }
 
-        direction.y = 0f;
+    private void MoveToTarget(Vector3 targetPosition)
+    {
+        _agent.CurrentAction = "YENDO A RECOLECTAR";
 
-        _agent.transform.position +=
-            direction.normalized *
-            _agent.speed *
-            Time.deltaTime;
+        if (_agent.PathFollower == null)
+            return;
+
+        _repathTimer -= Time.deltaTime;
+
+        if (_repathTimer > 0f)
+            return;
+
+        if (_agent.PathFollower.HasPath &&
+            Vector3.Distance(targetPosition, _lastDestination) < RepathDistance)
+            return;
+
+        _agent.PathFollower.SetDestination(targetPosition);
+        _lastDestination = targetPosition;
+        _repathTimer = RepathInterval;
     }
 
     private void Gather()
     {
-        _agent.CurrentAction = "RECOLECTANDO";
-        //Debug.Log($"Hunter recolecto a {_agent.GatherTarget.name}");
+        if (!IsTargetValid())
+        {
+            ReturnToSearch();
+            return;
+        }
 
         _agent.GatherTarget.Collect();
-
+        _agent.RegisterGather();
         _agent.GatherTarget = null;
 
-        StateMachine.ChangeState(HunterStates.Patrol);
+        _agent.CurrentAction = "RECOLECCION COMPLETA";
+
+        if (_agent.HasCompletedGathers)
+        {
+            StateMachine.ChangeState(HunterStates.Exit);
+            return;
+        }
+
+        StateMachine.ChangeState(HunterStates.Search);
+    }
+
+    private void ReturnToSearch()
+    {
+        _agent.GatherTarget = null;
+        StateMachine.ChangeState(HunterStates.Search);
     }
 }
