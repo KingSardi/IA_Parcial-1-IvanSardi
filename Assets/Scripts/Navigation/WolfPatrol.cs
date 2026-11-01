@@ -6,12 +6,12 @@ using UnityEngine;
 public class WolfPatrol : MonoBehaviour
 {
     [Header("Patrol")]
-    [SerializeField] private List<Transform> _waypoints = new();
+    [SerializeField] private List<NavigationNode> _patrolNodes = new();
     [SerializeField] private float _waitTime = 1f;
     [SerializeField] private float _retryTime = 2f;
 
     private WolfPathFollower _pathFollower;
-    private int _currentWaypointIndex;
+    private int _currentNodeIndex;
     private float _waitTimer;
     private float _retryTimer;
     private bool _waiting;
@@ -25,12 +25,12 @@ public class WolfPatrol : MonoBehaviour
     private void Start()
     {
         if (!_isPaused)
-            MoveToCurrentWaypoint();
+            MoveToCurrentNode();
     }
 
     private void Update()
     {
-        if (_isPaused || _waypoints.Count == 0)
+        if (_isPaused || _patrolNodes.Count == 0)
             return;
 
         if (_waiting)
@@ -40,8 +40,8 @@ public class WolfPatrol : MonoBehaviour
             if (_waitTimer <= 0f)
             {
                 _waiting = false;
-                AdvanceWaypoint();
-                MoveToCurrentWaypoint();
+                AdvanceNode();
+                MoveToCurrentNode();
             }
 
             return;
@@ -61,7 +61,7 @@ public class WolfPatrol : MonoBehaviour
             if (_retryTimer <= 0f)
             {
                 _retryTimer = _retryTime;
-                MoveToCurrentWaypoint();
+                MoveToCurrentNode();
             }
         }
     }
@@ -77,31 +77,31 @@ public class WolfPatrol : MonoBehaviour
         _isPaused = false;
         _waiting = false;
         _retryTimer = _retryTime;
-        MoveToCurrentWaypoint();
+        MoveToCurrentNode();
     }
 
-    private void MoveToCurrentWaypoint()
+    private void MoveToCurrentNode()
     {
-        if (_waypoints.Count == 0)
+        if (_patrolNodes.Count == 0)
             return;
 
         int attempts = 0;
 
-        while (attempts < _waypoints.Count && _waypoints[_currentWaypointIndex] == null)
+        while (attempts < _patrolNodes.Count && _patrolNodes[_currentNodeIndex] == null)
         {
-            AdvanceWaypoint();
+            AdvanceNode();
             attempts++;
         }
 
-        if (_waypoints[_currentWaypointIndex] == null)
+        if (_patrolNodes[_currentNodeIndex] == null)
             return;
 
-        _pathFollower.SetDestination(_waypoints[_currentWaypointIndex]);
+        _pathFollower.SetDestination(_patrolNodes[_currentNodeIndex].Position);
         _retryTimer = _retryTime;
     }
 
-    private void AdvanceWaypoint()
+    private void AdvanceNode()
     {
-        _currentWaypointIndex = (_currentWaypointIndex + 1) % _waypoints.Count;
+        _currentNodeIndex = (_currentNodeIndex + 1) % _patrolNodes.Count;
     }
 }

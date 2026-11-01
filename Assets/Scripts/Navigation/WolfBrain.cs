@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 [RequireComponent(typeof(WolfPathFollower))]
@@ -30,6 +31,7 @@ public class WolfBrain : MonoBehaviour
     private WolfHowlEmitter _howl;
     private WolfAlertReceiver _alert;
     private SafeZoneDetector _safeZoneDetector;
+    private FSMAgent _hunterAgent;
 
     private WolfState _currentState = WolfState.Patrol;
     private Vector3 _lastKnownPosition;
@@ -46,25 +48,31 @@ public class WolfBrain : MonoBehaviour
         _vision = GetComponent<WolfVisionSensor>();
         _howl = GetComponent<WolfHowlEmitter>();
         _alert = GetComponent<WolfAlertReceiver>();
+
         if (_hunter != null)
+        {
             _safeZoneDetector = _hunter.GetComponent<SafeZoneDetector>();
+            _hunterAgent = _hunter.GetComponent<FSMAgent>();
+        }
     }
 
     private void Update()
     {
-        if (_hunter != null && _safeZoneDetector == null)
-            _safeZoneDetector = _hunter.GetComponent<SafeZoneDetector>();
+        if (_hunter == null)
+            return;
 
-        if (_safeZoneDetector != null && _hunter != null && _safeZoneDetector.IsInsideSafeZone(_hunter.position))
+        if (_hunterAgent != null && _hunterAgent.IsDead)
         {
-            _alert.ClearAlert();
-            _lastKnownPosition = Vector3.zero;
-
-            if (_currentState != WolfState.Patrol)
-                ChangeState(WolfState.Patrol);
-
+            ForgetHunter();
             return;
         }
+
+        if (_safeZoneDetector != null && _safeZoneDetector.IsInsideSafeZone(_hunter.position))
+        {
+            ForgetHunter();
+            return;
+        }
+
         _repathTimer -= Time.deltaTime;
         _howlTimer -= Time.deltaTime;
 
@@ -83,7 +91,6 @@ public class WolfBrain : MonoBehaviour
         {
             _lastKnownPosition = _alert.AlertPosition;
             _alert.ClearAlert();
-
             ChangeState(WolfState.Search);
         }
         else if (_currentState == WolfState.Chase)
@@ -93,13 +100,15 @@ public class WolfBrain : MonoBehaviour
 
         if (_currentState == WolfState.Search)
             UpdateSearch();
+    }
 
-        if (_hunter.TryGetComponent<FSMAgent>(out var hunterAgent) && hunterAgent.IsDead)
-        {
-            _alert.ClearAlert();
+    private void ForgetHunter()
+    {
+        _alert.ClearAlert();
+        _lastKnownPosition = Vector3.zero;
+
+        if (_currentState != WolfState.Patrol)
             ChangeState(WolfState.Patrol);
-            return;
-        }
     }
 
     private void ChangeState(WolfState newState)
@@ -123,17 +132,25 @@ public class WolfBrain : MonoBehaviour
             case WolfState.Search:
                 _patrol.PausePatrol();
                 _searchTimer = _searchDuration;
-                _pathFollower.SetDestination(_lastKnownPosition);
+
+                if (!_pathFollower.TrySetDirectDestination(_lastKnownPosition))
+                    _pathFollower.SetDestination(_lastKnownPosition);
+
                 break;
         }
     }
+
 
     private void UpdateChase()
     {
         if (_hunter == null)
             return;
 
-        if (_repathTimer <= 0f)
+        if (_pathFollower.TrySetDirectDestination(_hunter.position))
+        {
+            _pathFollower.UpdateDirectDestination(_hunter.position);
+        }
+        else if (_repathTimer <= 0f || !_pathFollower.HasPath)
         {
             _pathFollower.SetDestination(_hunter.position);
             _repathTimer = _repathInterval;
@@ -145,6 +162,7 @@ public class WolfBrain : MonoBehaviour
             _howlTimer = _howlCooldown;
         }
     }
+
 
     private void UpdateSearch()
     {
