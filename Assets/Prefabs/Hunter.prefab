@@ -251,7 +251,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: f933156983aad2e47bbac9b942a30c3f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -339,5 +339,21 @@ MonoBehaviour:
   _interestSpawnInterval: 5
   _meleeDamage: 30
   _rangeDamage: 10
+  _requiredGathers: 3
+  _gatherDistance: 1.5
+  _gatherDuration: 2
+  _exitPoint: {fileID: 0}
+  _navigationGraph: {fileID: 0}
+  _safeZoneDetector: {fileID: 0}
+  _safeZoneWaitTime: 3
+  _respawnPoint: {fileID: 0}
+  _respawnTime: 5
   _stateText: {fileID: 3443457482695222553}
   _hunterRenderer: {fileID: 2823353844581682374}
+  _searchColor: {r: 0.52, g: 0.8, b: 0.09, a: 1}
+  _patrolColor: {r: 0, g: 1, b: 0, a: 1}
+  _attackColor: {r: 1, g: 0, b: 0, a: 1}
+  _gatherColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _deadColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  _fleeColor: {r: 0, g: 1, b: 1, a: 1}
+  _exitColor: {r: 0, g: 0, b: 1, a: 1}

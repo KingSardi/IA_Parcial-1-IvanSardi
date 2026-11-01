@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 87bfc20d7f8ff9a4ebfaa789f392699d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -147,7 +147,13 @@ MonoBehaviour:
   _interestInteractionRadius: 1.5
   _interactionInterval: 1
   _interactionDamage: 1
+  _interestScanInterval: 0.25
   _behaviourText: {fileID: 7446814496230321725}
+  _flockingColor: {r: 0.9607843, g: 0.61960787, b: 0.043137256, a: 1}
+  _evadingColor: {r: 1, g: 0, b: 0, a: 1}
+  _arrivingColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _interactingColor: {r: 0, g: 0, b: 1, a: 1}
+  _deadColor: {r: 0, g: 0, b: 0, a: 1}
   _target: {fileID: 0}
   currentSteering: 5
 --- !u!1 &7564805147888658234

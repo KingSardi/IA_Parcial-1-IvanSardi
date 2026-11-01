@@ -5,18 +5,19 @@ using UnityEngine;
 public class SearchState : State
 {
     private readonly FSMAgent _agent;
-    private readonly PatrolData _data;
+    private readonly NavigationGraph _graph;
 
-    private int _currentNode;
+    private NavigationNode _currentSearchNode;
     private float _spawnTimer;
     private bool _isPlanting;
     private float _plantingTimer;
     private bool _hasDestination;
 
-    public SearchState(FSMAgent agent, PatrolData data, StateMachine stateMachine) : base(stateMachine)
+    public SearchState(FSMAgent agent, NavigationGraph graph, StateMachine stateMachine)
+        : base(stateMachine)
     {
         _agent = agent;
-        _data = data;
+        _graph = graph;
     }
 
     public override void Enter()
@@ -25,6 +26,7 @@ public class SearchState : State
         _isPlanting = false;
         _plantingTimer = 0f;
         _hasDestination = false;
+        _currentSearchNode = null;
 
         if (_agent.PathFollower != null)
             _agent.PathFollower.Stop();
@@ -38,6 +40,12 @@ public class SearchState : State
 
     public override void Update()
     {
+        if (_agent.HasCompletedGathers)
+        {
+            StateMachine.ChangeState(HunterStates.Exit);
+            return;
+        }
+
         if (_agent.PathFollower == null)
             return;
 
@@ -72,7 +80,7 @@ public class SearchState : State
         }
 
         _agent.CurrentAction = "BUSCANDO";
-        PatrolLoop();
+        SearchLoop();
         HandleInterestObjectSpawn();
     }
 
@@ -98,25 +106,43 @@ public class SearchState : State
         }
     }
 
-    private void PatrolLoop()
+
+    private void SearchLoop()
     {
-        if (_data == null || _data.wayPoints == null || _data.wayPoints.Count == 0)
+        if (_graph == null || _graph.Nodes == null)
             return;
 
         if (_hasDestination && _agent.PathFollower.HasPath)
             return;
 
-        if (_hasDestination && _agent.PathFollower.HasArrived)
-            _currentNode = (_currentNode + 1) % _data.wayPoints.Count;
+        List<NavigationNode> availableNodes = new();
 
-        Transform nextWaypoint = _data.wayPoints[_currentNode];
+        foreach (NavigationNode node in _graph.Nodes)
+        {
+            if (node == null)
+                continue;
 
-        if (nextWaypoint == null)
+            if (!Bounds.Instance.Contains(node.Position))
+                continue;
+
+            if (node == _currentSearchNode)
+                continue;
+
+            availableNodes.Add(node);
+        }
+
+        if (availableNodes.Count == 0)
             return;
 
-        _agent.PathFollower.SetDestination(nextWaypoint.position);
+        NavigationNode nextNode =
+            availableNodes[Random.Range(0, availableNodes.Count)];
+
+        _currentSearchNode = nextNode;
+
+        _agent.PathFollower.SetDestination(nextNode.Position);
         _hasDestination = _agent.PathFollower.HasPath;
     }
+
 
     private void HandleInterestObjectSpawn()
     {

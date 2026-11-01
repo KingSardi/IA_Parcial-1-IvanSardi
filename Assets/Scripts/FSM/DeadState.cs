@@ -19,6 +19,9 @@ public class DeadState : State
         _hunter.CurrentTarget = null;
         _hunter.GatherTarget = null;
         _hunter.CurrentAction = "DEAD";
+
+        if (_hunter.PathFollower != null) 
+            _hunter.PathFollower.Stop();
     }
 
     public override void Update()

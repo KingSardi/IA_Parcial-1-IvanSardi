@@ -151,6 +151,81 @@ public class FleeState : State
         return totalPenalty;
     }
 
+    private List<NavigationNode> FindSafestPath(NavigationNode goalNode)
+    {
+        List<NavigationNode> bestPath = null;
+        float bestCost = float.PositiveInfinity;
+
+        Vector3 hunterPosition = _agent.transform.position;
+
+        foreach (NavigationNode node in _graph.Nodes)
+        {
+            if (node == null)
+                continue;
+
+            if (!CanReachStartNode(node))
+                continue;
+
+            List<NavigationNode> path = _pathfinder.FindPath(
+                node,
+                goalNode,
+                isWolf: false,
+                additionalCost: CalculateDangerCost
+            );
+
+            if (path == null || path.Count == 0)
+                continue;
+
+            float cost = Vector3.Distance(hunterPosition, node.Position);
+            cost += CalculateDangerCost(hunterPosition, node.Position);
+
+            for (int i = 1; i < path.Count; i++)
+            {
+                cost += Vector3.Distance(path[i - 1].Position, path[i].Position);
+                cost += CalculateDangerCost(path[i - 1].Position, path[i].Position);
+            }
+
+            cost += Vector3.Distance(path[path.Count - 1].Position, _safeDestination);
+
+            if (cost >= bestCost)
+                continue;
+
+            bestCost = cost;
+            bestPath = path;
+        }
+
+        return bestPath;
+    }
+
+    private bool CanReachStartNode(NavigationNode node)
+    {
+        Vector3 start = _agent.transform.position;
+        Vector3 end = node.Position;
+
+        Vector3 direction = end - start;
+        float distance = direction.magnitude;
+
+        if (distance < 0.01f)
+            return true;
+
+        int obstacleLayer = LayerMask.GetMask("Obstacle");
+
+        if (Physics.CheckSphere(start, 0.5f, obstacleLayer))
+            return false;
+
+        if (Physics.CheckSphere(end, 0.5f, obstacleLayer))
+            return false;
+
+        return !Physics.SphereCast(
+            start,
+            0.5f,
+            direction.normalized,
+            out _,
+            distance,
+            obstacleLayer
+        );
+    }
+
     private void SelectSafeZone()
     {
         if (_graph == null || _safeZoneDetector == null || _safeZoneDetector.SafeZones == null)
@@ -202,23 +277,16 @@ public class FleeState : State
         if (_graph == null || _selectedZone == null || _agent.PathFollower == null)
             return;
 
-        NavigationNode startNode = _graph.GetClosestNode(_agent.transform.position, false);
         NavigationNode goalNode = _graph.GetClosestNode(_safeDestination, false);
 
-        if (startNode == null || goalNode == null)
+        if (goalNode == null)
             return;
 
-        List<NavigationNode> path = _pathfinder.FindPath(startNode, goalNode, isWolf: false, additionalCost: CalculateDangerCost);
+        List<NavigationNode> path = FindSafestPath(goalNode);
 
         if (path == null || path.Count == 0)
             return;
 
         _agent.PathFollower.SetPath(path, _safeDestination);
-    }
-
-    private bool IsInsideSelectedZone()
-    {
-        Vector3 closestPoint = _selectedZone.ClosestPoint(_agent.transform.position);
-        return (closestPoint - _agent.transform.position).sqrMagnitude <= 0.0001f;
     }
 }

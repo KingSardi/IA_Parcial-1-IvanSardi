@@ -11,7 +11,6 @@ public enum HunterStates
     Flee,
     Exit,
     Dead,
-    Patrol
 }
 
 public class FSMAgent : MonoBehaviour
@@ -25,7 +24,7 @@ public class FSMAgent : MonoBehaviour
 
     [Header("Perception")]
     [SerializeField] private float _perceptionRadius = 12f;
-    [SerializeField] private PatrolData dataPatrol;
+    [SerializeField] private NavigationGraph _searchGraph;
 
     [Header("Interest Object Spawn")]
     [SerializeField] private InterestObject _interestObjectPrefab;
@@ -76,6 +75,14 @@ public class FSMAgent : MonoBehaviour
     [SerializeField] private TMP_Text _stateText;
     [SerializeField] private Renderer _hunterRenderer;
 
+    [SerializeField]private Color _searchColor = new Color(0.52f, 0.80f, 0.09f);
+    [SerializeField] private Color _patrolColor = Color.green;
+    [SerializeField] private Color _attackColor = Color.red;
+    [SerializeField] private Color _gatherColor = Color.yellow;
+    [SerializeField] private Color _deadColor = Color.gray;
+    [SerializeField] private Color _fleeColor = Color.cyan;
+    [SerializeField] private Color _exitColor = Color.blue;
+
     public AdvanceAgent CurrentTarget { get; set; }
     public AdvanceAgent GatherTarget { get; set; }
     public string CurrentAction { get; set; } = "NONE";
@@ -113,15 +120,13 @@ public class FSMAgent : MonoBehaviour
         _stateMachine = new StateMachine();
         _wolfSensor = GetComponent<HunterWolfSensor>();
 
-        PatrolState patrolState = new PatrolState(this, dataPatrol, _stateMachine);
-        SearchState searchState = new SearchState(this, dataPatrol, _stateMachine);
+        SearchState searchState = new SearchState(this, _searchGraph, _stateMachine);
         AttackState attackState = new AttackState(this, _stateMachine);
         GatherState gatherState = new GatherState(this, _stateMachine);
         DeadState deadState = new DeadState(this, _stateMachine, _respawnTime);
         ExitState exitState = new ExitState(this, _stateMachine);
         FleeState fleeState = new FleeState(this, _navigationGraph, _safeZoneDetector, _stateMachine);
 
-        _stateMachine.RegisterState(HunterStates.Patrol, patrolState);
         _stateMachine.RegisterState(HunterStates.Search, searchState);
         _stateMachine.RegisterState(HunterStates.Attack, attackState);
         _stateMachine.RegisterState(HunterStates.Gather, gatherState);
@@ -175,7 +180,8 @@ public class FSMAgent : MonoBehaviour
                 $"State: {CurrentStateName.ToUpper()}\n" +
                 $"Target: {targetName}\n" +
                 $"Action: {CurrentAction}\n" +
-                $"Last Attack: {LastAction}";
+                $"Last Attack: {LastAction}\n" +
+                $"Boids Collected: {GatherCount} / {RequiredGathers}";
         }
 
         UpdateStateColor();
@@ -267,28 +273,27 @@ public class FSMAgent : MonoBehaviour
         switch (CurrentStateName)
         {
             case "Search":
-            case "Patrol":
-                _hunterRenderer.material.color = Color.green;
+                _hunterRenderer.material.color = _searchColor;
                 break;
 
             case "Attack":
-                _hunterRenderer.material.color = Color.red;
+                _hunterRenderer.material.color = _attackColor;
                 break;
 
             case "Gather":
-                _hunterRenderer.material.color = Color.yellow;
+                _hunterRenderer.material.color = _gatherColor;
                 break;
 
             case "Dead":
-                _hunterRenderer.material.color = Color.gray;
+                _hunterRenderer.material.color = _deadColor;
                 break;
 
             case "Flee":
-                _hunterRenderer.material.color = Color.cyan;
+                _hunterRenderer.material.color = _fleeColor;
                 break;
 
             case "Exit":
-                _hunterRenderer.material.color = Color.blue;
+                _hunterRenderer.material.color = _exitColor;
                 break;
         }
     }

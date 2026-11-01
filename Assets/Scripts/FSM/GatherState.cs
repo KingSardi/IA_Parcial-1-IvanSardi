@@ -36,6 +36,12 @@ public class GatherState : State
 
     public override void Update()
     {
+        if (_agent.HasCompletedGathers)
+        {
+            StateMachine.ChangeState(HunterStates.Exit);
+            return;
+        }
+
         if (!IsTargetValid())
         {
             ReturnToSearch();

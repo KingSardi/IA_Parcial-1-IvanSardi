@@ -39,6 +39,11 @@ public class AdvanceAgent : Agent
 
     [Header("Visual Feedback")]
     [SerializeField] private TMP_Text _behaviourText;
+    [SerializeField] private Color _flockingColor = Color.green;
+    [SerializeField] private Color _evadingColor = Color.red;
+    [SerializeField] private Color _arrivingColor = Color.yellow;
+    [SerializeField] private Color _interactingColor = Color.blue;
+    [SerializeField] private Color _deadColor = Color.black;
 
     [Header("References")]
     [SerializeField] private Agent _target;
@@ -492,6 +497,7 @@ public class AdvanceAgent : Agent
         _behaviourText.text = CurrentBehaviour;
     }
 
+
     private void UpdateBehaviourColor()
     {
         if (_renderer == null)
@@ -500,26 +506,27 @@ public class AdvanceAgent : Agent
         switch (CurrentBehaviour)
         {
             case "FLOCKING":
-                _renderer.material.color = Color.green;
+                _renderer.material.color = _flockingColor;
                 break;
 
             case "EVADIENDO":
-                _renderer.material.color = Color.red;
+                _renderer.material.color = _evadingColor;
                 break;
 
             case "LLEGANDO":
-                _renderer.material.color = Color.yellow;
+                _renderer.material.color = _arrivingColor;
                 break;
 
             case "INTERACTUANDO":
-                _renderer.material.color = Color.blue;
+                _renderer.material.color = _interactingColor;
                 break;
 
             case "MUERTO":
-                _renderer.material.color = Color.black;
+                _renderer.material.color = _deadColor;
                 break;
         }
     }
+
 
     private void OnDrawGizmosSelected()
     {

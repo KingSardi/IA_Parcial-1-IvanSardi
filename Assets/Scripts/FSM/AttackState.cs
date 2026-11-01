@@ -35,6 +35,21 @@ public class AttackState : State
 
     public override void Update()
     {
+        if (_agent.HasCompletedGathers)
+        {
+            StateMachine.ChangeState(HunterStates.Exit);
+            return;
+        }
+
+        AdvanceAgent deadBoid = _agent.FindClosestDeadBoid();
+
+        if (deadBoid != null)
+        {
+            _agent.GatherTarget = deadBoid;
+            StateMachine.ChangeState(HunterStates.Gather);
+            return;
+        }
+
         if (_agent.CurrentTarget == null || _agent.CurrentTarget.IsDead)
         {
             ReturnToSearch();

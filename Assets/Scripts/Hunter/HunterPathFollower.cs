@@ -18,6 +18,14 @@ public class HunterPathFollower : MonoBehaviour
     [SerializeField] private LayerMask _obstacleLayer;
     [SerializeField] private float _agentRadius = 0.5f;
 
+    [Header("Path Visualization")]
+    [SerializeField] private bool _showPath = true;
+    [SerializeField] private Material _pathMaterial;
+    [SerializeField] private float _pathLineWidth = 0.08f;
+    [SerializeField] private float _pathLineHeight = 0.15f;
+
+    private LineRenderer _pathLine;
+
     private AStarPathfinder _pathfinder;
     private List<NavigationNode> _path = new();
     private int _currentNodeIndex;
@@ -32,6 +40,8 @@ public class HunterPathFollower : MonoBehaviour
     private void Awake()
     {
         _pathfinder = new AStarPathfinder();
+
+        CreatePathLine();
     }
 
     private void Update()
@@ -66,6 +76,10 @@ public class HunterPathFollower : MonoBehaviour
         FollowPath();
     }
 
+    private void LateUpdate()
+    {
+        UpdatePathLine();
+    }
     public void SetDestination(Vector3 position)
     {
         _destinationPosition = position;
@@ -279,4 +293,63 @@ public class HunterPathFollower : MonoBehaviour
 
         return !Physics.SphereCast(origin, _agentRadius, direction.normalized, out _, distance, _obstacleLayer);
     }
+
+
+    private void CreatePathLine()
+    {
+        GameObject lineObject = new GameObject("PathLine");
+        lineObject.transform.SetParent(transform, false);
+
+        _pathLine = lineObject.AddComponent<LineRenderer>();
+
+        _pathLine.useWorldSpace = true;
+        _pathLine.material = _pathMaterial;
+        _pathLine.startWidth = _pathLineWidth;
+        _pathLine.endWidth = _pathLineWidth;
+
+        _pathLine.shadowCastingMode =
+            UnityEngine.Rendering.ShadowCastingMode.Off;
+
+        _pathLine.receiveShadows = false;
+        _pathLine.enabled = false;
+    }
+
+    private void UpdatePathLine()
+    {
+        if (_pathLine == null)
+            return;
+
+        if (!_showPath || !_hasPath || _directMovement)
+        {
+            _pathLine.enabled = false;
+            return;
+        }
+
+        int remainingNodes = _path.Count - _currentNodeIndex;
+
+        if (remainingNodes <= 0)
+        {
+            _pathLine.enabled = false;
+            return;
+        }
+
+        _pathLine.enabled = true;
+        _pathLine.positionCount = remainingNodes + 1;
+
+        Vector3 start = transform.position;
+        start.y = _pathLineHeight;
+
+        _pathLine.SetPosition(0, start);
+
+        for (int i = 0; i < remainingNodes; i++)
+        {
+            Vector3 nodePosition =
+                _path[_currentNodeIndex + i].Position;
+
+            nodePosition.y = _pathLineHeight;
+
+            _pathLine.SetPosition(i + 1, nodePosition);
+        }
+    }
+
 }

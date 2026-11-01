@@ -20,6 +20,14 @@ public class WolfPathFollower : MonoBehaviour
     [SerializeField] private LayerMask _restrictedLayer;
     [SerializeField] private float _agentRadius = 0.5f;
 
+    [Header("Path Visualization")]
+    [SerializeField] private bool _showPath = true;
+    [SerializeField] private Material _pathMaterial;
+    [SerializeField] private float _pathLineWidth = 0.08f;
+    [SerializeField] private float _pathLineHeight = 0.15f;
+
+    private LineRenderer _pathLine;
+
     private AStarPathfinder _pathfinder;
     private List<NavigationNode> _path = new();
     private int _currentNodeIndex;
@@ -35,6 +43,8 @@ public class WolfPathFollower : MonoBehaviour
     private void Awake()
     {
         _pathfinder = new AStarPathfinder(_restrictedLayer, _agentRadius);
+
+        CreatePathLine();
     }
 
     private void Update()
@@ -63,6 +73,12 @@ public class WolfPathFollower : MonoBehaviour
         FollowPath();
     }
 
+    private void LateUpdate()
+    {
+        UpdatePathLine();
+    }
+
+
     public void SetDestination(Transform destination)
     {
         _destination = destination;
@@ -81,31 +97,31 @@ public class WolfPathFollower : MonoBehaviour
         CalculatePath();
     }
     public bool TrySetDirectDestination(Vector3 position)
+{
+    Vector3 targetPosition = position;
+    targetPosition.y = transform.position.y;
+
+    if (!CanMoveDirectlyTo(targetPosition))
+        return false;
+
+    if (_directMovement)
     {
-        Vector3 targetPosition = position;
-        targetPosition.y = transform.position.y;
-
-        if (!CanMoveDirectlyTo(targetPosition))
-            return false;
-
-        if (_directMovement)
-        {
-            _destinationPosition = targetPosition;
-            HasArrived = false;
-            return true;
-        }
-
-        _destination = null;
         _destinationPosition = targetPosition;
-        _hasDestination = true;
-        _directMovement = true;
-        _hasPath = false;
-        _path.Clear();
-        _currentNodeIndex = 0;
         HasArrived = false;
-
         return true;
     }
+
+    _destination = null;
+    _destinationPosition = targetPosition;
+    _hasDestination = true;
+    _directMovement = true;
+    _hasPath = false;
+    _path.Clear();
+    _currentNodeIndex = 0;
+    HasArrived = false;
+
+    return true;
+}
 
     public void UpdateDirectDestination(Vector3 position)
     {
@@ -265,4 +281,62 @@ public class WolfPathFollower : MonoBehaviour
 
         return true;
     }
+
+    private void CreatePathLine()
+    {
+        GameObject lineObject = new GameObject("PathLine");
+        lineObject.transform.SetParent(transform, false);
+
+        _pathLine = lineObject.AddComponent<LineRenderer>();
+
+        _pathLine.useWorldSpace = true;
+        _pathLine.material = _pathMaterial;
+        _pathLine.startWidth = _pathLineWidth;
+        _pathLine.endWidth = _pathLineWidth;
+
+        _pathLine.shadowCastingMode =
+            UnityEngine.Rendering.ShadowCastingMode.Off;
+
+        _pathLine.receiveShadows = false;
+        _pathLine.enabled = false;
+    }
+
+    private void UpdatePathLine()
+    {
+        if (_pathLine == null)
+            return;
+
+        if (!_showPath || !_hasPath || _directMovement)
+        {
+            _pathLine.enabled = false;
+            return;
+        }
+
+        int remainingNodes = _path.Count - _currentNodeIndex;
+
+        if (remainingNodes <= 0)
+        {
+            _pathLine.enabled = false;
+            return;
+        }
+
+        _pathLine.enabled = true;
+        _pathLine.positionCount = remainingNodes + 1;
+
+        Vector3 start = transform.position;
+        start.y = _pathLineHeight;
+
+        _pathLine.SetPosition(0, start);
+
+        for (int i = 0; i < remainingNodes; i++)
+        {
+            Vector3 nodePosition =
+                _path[_currentNodeIndex + i].Position;
+
+            nodePosition.y = _pathLineHeight;
+
+            _pathLine.SetPosition(i + 1, nodePosition);
+        }
+    }
+
 }

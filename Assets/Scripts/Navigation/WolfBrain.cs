@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(WolfPathFollower))]
 [RequireComponent(typeof(WolfPatrol))]
@@ -8,12 +9,7 @@ using UnityEngine;
 [RequireComponent(typeof(WolfAlertReceiver))]
 public class WolfBrain : MonoBehaviour
 {
-    public enum WolfState
-    {
-        Patrol,
-        Chase,
-        Search
-    }
+    public enum WolfState { Patrol, Chase, Search }
 
     [Header("References")]
     [SerializeField] private Transform _hunter;
@@ -25,6 +21,13 @@ public class WolfBrain : MonoBehaviour
 
     [Header("Search")]
     [SerializeField] private float _searchDuration = 4f;
+
+    [Header("Visual Feedback")]
+    [SerializeField] private TMP_Text _stateText;
+    [SerializeField] private Renderer _wolfRenderer;
+    [SerializeField] private Color _patrolColor = new Color(0.55f, 0.25f, 0.95f);
+    [SerializeField] private Color _chaseColor = Color.red;
+    [SerializeField] private Color _searchColor = new Color(1f, 0.55f, 0f);
 
     private WolfPathFollower _pathFollower;
     private WolfPatrol _patrol;
@@ -50,28 +53,39 @@ public class WolfBrain : MonoBehaviour
         _alert = GetComponent<WolfAlertReceiver>();
 
         if (_hunter != null)
-        {
             _hunterAgent = _hunter.GetComponent<FSMAgent>();
-        }
+    }
+
+    private void Start()
+    {
+        UpdateStateColor();
+        UpdateStateText();
     }
 
     private void Update()
     {
-        if (_hunter == null)
-            return;
-
-        if (_hunterAgent != null && _hunterAgent.IsDead)
+        if (_hunter != null)
         {
-            ForgetHunter();
-            return;
+            if (_hunterAgent != null && _hunterAgent.IsDead)
+            {
+                ForgetHunter();
+            }
+            else if (_safeZoneDetector != null && _safeZoneDetector.IsInsideSafeZone(_hunter.position))
+            {
+                ForgetHunter();
+            }
+            else
+            {
+                UpdateBehaviour();
+            }
         }
 
-        if (_safeZoneDetector != null && _safeZoneDetector.IsInsideSafeZone(_hunter.position))
-        {
-            ForgetHunter();
-            return;
-        }
+        UpdateStateText();
+        UpdateStateColor();
+    }
 
+    private void UpdateBehaviour()
+    {
         _repathTimer -= Time.deltaTime;
         _howlTimer -= Time.deltaTime;
 
@@ -139,7 +153,6 @@ public class WolfBrain : MonoBehaviour
         }
     }
 
-
     private void UpdateChase()
     {
         if (_hunter == null)
@@ -162,7 +175,6 @@ public class WolfBrain : MonoBehaviour
         }
     }
 
-
     private void UpdateSearch()
     {
         if (_pathFollower.HasPath)
@@ -178,5 +190,48 @@ public class WolfBrain : MonoBehaviour
 
         if (_searchTimer <= 0f)
             ChangeState(WolfState.Patrol);
+    }
+
+    private void UpdateStateText()
+    {
+        if (_stateText == null)
+            return;
+
+        string target = _currentState == WolfState.Chase ? "HUNTER" : "NONE";
+
+        string action = _currentState switch
+        {
+            WolfState.Patrol => "PATRULLANDO",
+            WolfState.Chase => "PERSIGUIENDO",
+            WolfState.Search => "INVESTIGANDO",
+            _ => "NONE"
+        };
+
+        _stateText.text =
+            $"Wolf: {gameObject.name}\n" +
+            $"State: {_currentState.ToString().ToUpper()}\n" +
+            $"Target: {target}\n" +
+            $"Action: {action}";
+    }
+
+    private void UpdateStateColor()
+    {
+        if (_wolfRenderer == null)
+            return;
+
+        switch (_currentState)
+        {
+            case WolfState.Patrol:
+                _wolfRenderer.material.color = _patrolColor;
+                break;
+
+            case WolfState.Chase:
+                _wolfRenderer.material.color = _chaseColor;
+                break;
+
+            case WolfState.Search:
+                _wolfRenderer.material.color = _searchColor;
+                break;
+        }
     }
 }
