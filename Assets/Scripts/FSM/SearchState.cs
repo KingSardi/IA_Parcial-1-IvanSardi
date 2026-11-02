@@ -101,7 +101,7 @@ public class SearchState : State
             Vector3 destination = Bounds.Instance.transform.position;
             destination.y = _agent.transform.position.y;
 
-            _agent.PathFollower.SetDestination(destination);
+            _agent.PathFollower.SetDestination(destination, true);
             _hasDestination = _agent.PathFollower.HasPath;
         }
     }
@@ -139,7 +139,7 @@ public class SearchState : State
 
         _currentSearchNode = nextNode;
 
-        _agent.PathFollower.SetDestination(nextNode.Position);
+        _agent.PathFollower.SetDestination(nextNode.Position, true);
         _hasDestination = _agent.PathFollower.HasPath;
     }
 

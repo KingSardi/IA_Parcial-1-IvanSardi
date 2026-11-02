@@ -146,15 +146,9 @@ public class FSMAgent : MonoBehaviour
         {
             _wolfSensor.Scan();
 
-            bool insideSafeZone = _safeZoneDetector != null &&
-                                  _safeZoneDetector.IsInsideSafeZone(transform.position);
+            bool insideSafeZone = _safeZoneDetector != null && _safeZoneDetector.IsInsideSafeZone(transform.position);
 
-            if (_wolfSensor.CanSeeWolf &&
-                !insideSafeZone &&
-                !(_stateMachine.CurrentState is FleeState))
-            {
-                _stateMachine.ChangeState(HunterStates.Flee);
-            }
+            _stateMachine.EvaluateHunterThreat( _wolfSensor.CanSeeWolf,insideSafeZone);
         }
 
         _stateMachine.Update();

@@ -49,7 +49,7 @@ public class ExitState : State
         if (_retryTimer > 0f)
             return;
 
-        _agent.PathFollower.SetDestination(destination);
+        _agent.PathFollower.SetDestination(destination, true);
         _hasDestination = _agent.PathFollower.HasPath;
         _retryTimer = RetryInterval;
     }

@@ -20,7 +20,7 @@ public class DeadState : State
         _hunter.GatherTarget = null;
         _hunter.CurrentAction = "DEAD";
 
-        if (_hunter.PathFollower != null) 
+        if (_hunter.PathFollower != null)
             _hunter.PathFollower.Stop();
     }
 

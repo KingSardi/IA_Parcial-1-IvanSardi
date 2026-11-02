@@ -20,9 +20,36 @@ public class StateMachine
         if (newState == CurrentState)
             return;
 
+        if (CurrentState is DeadState &&
+    key.ToString() != HunterStates.Search.ToString())
+        {
+            return;
+        }
+
+        if (CurrentState is FleeState &&
+    !key.Equals(HunterStates.Dead) &&
+    !key.Equals(HunterStates.Search) &&
+    !key.Equals(HunterStates.Exit))
+        {
+            return;
+        }
+
         CurrentState?.Exit();
         CurrentState = newState;
         CurrentState.Enter();
+    }
+
+    public void EvaluateHunterThreat(bool wolfDetected, bool insideSafeZone)
+    {
+        if (CurrentState is DeadState)
+            return;
+
+        if (wolfDetected &&
+            !insideSafeZone &&
+            !(CurrentState is FleeState))
+        {
+            ChangeState(HunterStates.Flee);
+        }
     }
 
     public void Update()

@@ -80,12 +80,12 @@ public class HunterPathFollower : MonoBehaviour
     {
         UpdatePathLine();
     }
-    public void SetDestination(Vector3 position)
+    public void SetDestination(Vector3 position, bool forceAStar = false)
     {
         _destinationPosition = position;
         HasArrived = false;
 
-        if (TrySetDirectDestination(position))
+        if (!forceAStar && TrySetDirectDestination(position))
             return;
 
         CalculatePath();
@@ -175,8 +175,11 @@ public class HunterPathFollower : MonoBehaviour
         _path = _pathfinder.FindPath(startNode, goalNode, isWolf: false);
         _hasPath = _path != null && _path.Count > 0;
 
-        if (_hasPath && _path.Count > 1 && CanMoveDirectlyTo(_path[1].Position))
+        if (_hasPath && _path.Count > 1 &&
+            Vector3.Distance(transform.position, _path[0].Position) <= _arrivalDistance)
+        {
             _currentNodeIndex = 1;
+        }
     }
 
     private void FollowPath()
